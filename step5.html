@@ -3,9 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <title>Step 5: Benefit Points</title>
+    <meta charset="UTF-8">
+  <title>Step 1</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
+  <div class="wrapper">
   <h1>Step 5 of 8</h1>
 
   <p><strong>This is your recommendation:</strong> <span id="displayRecommendation"></span></p>
@@ -19,7 +22,7 @@
   <ul id="benefitList"></ul>
 
   <button onclick="goNext()">Done Brainstorming</button>
-
+</div>
   <script>
     // Show saved recommendation at the top
     document.getElementById('displayRecommendation').textContent = localStorage.getItem('recommendation') || '[No recommendation found]';

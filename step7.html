@@ -3,9 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <title>Step 7: Your Message Summary</title>
+    <meta charset="UTF-8">
+  <title>Step 1</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
+  <div class="wrapper">
   <h1>Step 7 of 8</h1>
   <h2>Your Structured Message</h2>
 
@@ -17,7 +20,7 @@
   <ul id="supportingPointsList"></ul>
 
   <button onclick="goNext()">Next: Transform This</button>
-
+</div>
   <script>
     document.getElementById('audience').textContent = localStorage.getItem('audience') || '[Not set]';
     document.getElementById('topic').textContent = localStorage.getItem('topic') || '[Not set]';
