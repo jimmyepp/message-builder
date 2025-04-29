@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Start a New Message</title>
+</head>
+<body>
+
+  <h1>Welcome to the Message Builder</h1>
+  <p>This tool will guide you step-by-step to build a clear, structured message. Ready?</p>
+
+  <button id="startBtn">Start New Message</button>
+
+  <script>
+    document.getElementById('startBtn').addEventListener('click', function () {
+      // Clear any previous message data
+      localStorage.removeItem('topic');
+      localStorage.removeItem('audience');
+      localStorage.removeItem('recommendation');
+      localStorage.removeItem('uniquePoints');
+      localStorage.removeItem('benefitPoints');
+      localStorage.removeItem('supportingPoints');
+
+      // Go to first step
+      window.location.href = 'step1.html';
+    });
+  </script>
+
+</body>
+</html>

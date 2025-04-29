@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Step 5: Benefit Points</title>
+</head>
+<body>
+
+  <h1>Step 5 of 8</h1>
+
+  <p><strong>This is your recommendation:</strong> <span id="displayRecommendation"></span></p>
+  <p>Why is your recommendation beneficial?<br>Enter one point at a time.</p>
+
+  <form id="step5Form">
+    <input type="text" id="benefitPointInput" placeholder="Enter a benefit" required>
+    <button type="submit">Add Point</button>
+  </form>
+
+  <ul id="benefitList"></ul>
+
+  <button onclick="goNext()">Done Brainstorming</button>
+
+  <script>
+    // Show saved recommendation at the top
+    document.getElementById('displayRecommendation').textContent = localStorage.getItem('recommendation') || '[No recommendation found]';
+
+    const form = document.getElementById('step5Form');
+    const input = document.getElementById('benefitPointInput');
+    const benefitList = document.getElementById('benefitList');
+
+    let benefitPoints = JSON.parse(localStorage.getItem('benefitPoints')) || [];
+
+    // Display already entered points
+    benefitPoints.forEach(point => {
+      const li = document.createElement('li');
+      li.textContent = point;
+      benefitList.appendChild(li);
+    });
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const value = input.value.trim();
+      if (value) {
+        benefitPoints.push(value);
+        localStorage.setItem('benefitPoints', JSON.stringify(benefitPoints));
+
+        const li = document.createElement('li');
+        li.textContent = value;
+        benefitList.appendChild(li);
+
+        input.value = "";
+      }
+    });
+
+    function goNext() {
+      window.location.href = 'step6.html';
+    }
+  </script>
+
+</body>
+</html>

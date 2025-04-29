@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Step 1: What is your topic?</title>
+</head>
+<body>
+
+  <h1>Step 1 of 8</h1>
+  <p>What is your topic?</p>
+
+  <form id="step1Form">
+    <input type="text" id="topicInput" placeholder="Enter your topic" required>
+    <button type="submit">Next</button>
+  </form>
+
+  <script>
+    const form = document.getElementById('step1Form');
+    const input = document.getElementById('topicInput');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      localStorage.setItem('topic', input.value.trim());
+      window.location.href = 'step2.html'; // Go to Step 2
+    });
+  </script>
+
+</body>
+</html>

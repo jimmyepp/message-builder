@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Step 6: Pick Supporting Points</title>
+</head>
+<body>
+
+  <h1>Step 6 of 8</h1>
+
+  <h2>Your Message So Far</h2>
+  <p><strong>Audience:</strong> <span id="audience"></span></p>
+  <p><strong>Topic:</strong> <span id="topic"></span></p>
+  <p><strong>Recommendation:</strong> <span id="recommendation"></span></p>
+
+  <h3>Select the 3 strongest points that support your recommendation:</h3>
+
+  <form id="step6Form">
+    <ul id="allPointsList"></ul>
+    <button type="submit">Next</button>
+  </form>
+
+  <script>
+    // Populate summary
+    document.getElementById('audience').textContent = localStorage.getItem('audience') || '[Not set]';
+    document.getElementById('topic').textContent = localStorage.getItem('topic') || '[Not set]';
+    document.getElementById('recommendation').textContent = localStorage.getItem('recommendation') || '[Not set]';
+
+    const allPointsList = document.getElementById('allPointsList');
+    const form = document.getElementById('step6Form');
+
+    const uniquePoints = JSON.parse(localStorage.getItem('uniquePoints')) || [];
+    const benefitPoints = JSON.parse(localStorage.getItem('benefitPoints')) || [];
+    const allPoints = uniquePoints.concat(benefitPoints);
+
+    allPoints.forEach((point, index) => {
+      const li = document.createElement('li');
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.name = 'selectedPoints';
+      checkbox.value = point;
+      checkbox.id = 'point' + index;
+
+      const label = document.createElement('label');
+      label.htmlFor = 'point' + index;
+      label.textContent = point;
+
+      li.appendChild(checkbox);
+      li.appendChild(label);
+      allPointsList.appendChild(li);
+    });
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const selected = Array.from(document.querySelectorAll('input[name="selectedPoints"]:checked'))
+        .map(checkbox => checkbox.value);
+
+      if (selected.length !== 3) {
+        alert('Please select exactly 3 points.');
+        return;
+      }
+
+      localStorage.setItem('supportingPoints', JSON.stringify(selected));
+      window.location.href = 'step7.html';
+    });
+  </script>
+
+</body>
+</html>

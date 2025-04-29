@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Step 3: What is your recommendation?</title>
+</head>
+<body>
+
+  <h1>Step 3 of 8</h1>
+  <p>What is your recommendation?</p>
+
+  <form id="step3Form">
+    <input type="text" id="recommendationInput" placeholder="Enter your recommendation" required>
+    <button type="submit">Next</button>
+  </form>
+
+  <script>
+    const form = document.getElementById('step3Form');
+    const input = document.getElementById('recommendationInput');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      localStorage.setItem('recommendation', input.value.trim());
+      window.location.href = 'step4.html'; // Go to Step 4
+    });
+  </script>
+
+</body>
+</html>

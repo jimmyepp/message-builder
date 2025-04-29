@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Step 2: Who is your audience?</title>
+</head>
+<body>
+
+  <h1>Step 2 of 8</h1>
+  <p>Who is your audience?</p>
+
+  <form id="step2Form">
+    <input type="text" id="audienceInput" placeholder="Enter your audience" required>
+    <button type="submit">Next</button>
+  </form>
+
+  <script>
+    const form = document.getElementById('step2Form');
+    const input = document.getElementById('audienceInput');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      localStorage.setItem('audience', input.value.trim());
+      window.location.href = 'step3.html'; // Go to Step 3
+    });
+  </script>
+
+</body>
+</html>

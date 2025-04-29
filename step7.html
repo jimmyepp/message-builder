@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Step 7: Your Message Summary</title>
+</head>
+<body>
+
+  <h1>Step 7 of 8</h1>
+  <h2>Your Structured Message</h2>
+
+  <p><strong>Audience:</strong> <span id="audience"></span></p>
+  <p><strong>Topic:</strong> <span id="topic"></span></p>
+  <p><strong>Recommendation:</strong> <span id="recommendation"></span></p>
+
+  <h3>Supporting Points:</h3>
+  <ul id="supportingPointsList"></ul>
+
+  <button onclick="goNext()">Next: Transform This</button>
+
+  <script>
+    document.getElementById('audience').textContent = localStorage.getItem('audience') || '[Not set]';
+    document.getElementById('topic').textContent = localStorage.getItem('topic') || '[Not set]';
+    document.getElementById('recommendation').textContent = localStorage.getItem('recommendation') || '[Not set]';
+
+    const supportingPoints = JSON.parse(localStorage.getItem('supportingPoints')) || [];
+    const ul = document.getElementById('supportingPointsList');
+
+    supportingPoints.forEach(point => {
+      const li = document.createElement('li');
+      li.textContent = point;
+      ul.appendChild(li);
+    });
+
+    function goNext() {
+      window.location.href = 'step8.html';
+    }
+  </script>
+
+</body>
+</html>

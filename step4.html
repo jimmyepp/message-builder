@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Step 4: Unique Points</title>
+</head>
+<body>
+
+  <h1>Step 4 of 8</h1>
+
+  <p><strong>This is your topic:</strong> <span id="displayTopic"></span></p>
+  <p>Why is your topic unique or different?<br>Enter one point at a time.</p>
+
+  <form id="step4Form">
+    <input type="text" id="uniquePointInput" placeholder="Enter a unique point" required>
+    <button type="submit">Add Point</button>
+  </form>
+
+  <ul id="pointsList"></ul>
+
+  <button onclick="goNext()">Done Brainstorming</button>
+
+  <script>
+    // Show saved topic at the top
+    document.getElementById('displayTopic').textContent = localStorage.getItem('topic') || '[No topic found]';
+
+    const form = document.getElementById('step4Form');
+    const input = document.getElementById('uniquePointInput');
+    const pointsList = document.getElementById('pointsList');
+
+    let uniquePoints = JSON.parse(localStorage.getItem('uniquePoints')) || [];
+
+    uniquePoints.forEach(point => {
+      const li = document.createElement('li');
+      li.textContent = point;
+      pointsList.appendChild(li);
+    });
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const value = input.value.trim();
+      if (value) {
+        uniquePoints.push(value);
+        localStorage.setItem('uniquePoints', JSON.stringify(uniquePoints));
+
+        const li = document.createElement('li');
+        li.textContent = value;
+        pointsList.appendChild(li);
+
+        input.value = "";
+      }
+    });
+
+    function goNext() {
+      window.location.href = 'step5.html';
+    }
+  </script>
+
+</body>
+</html>
