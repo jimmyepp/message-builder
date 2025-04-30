@@ -9,15 +9,15 @@
 <body>
   <div class="wrapper">
     <h1>My Saved Drafts</h1>
+    <p style="margin-bottom: 1rem; font-size: 0.9rem;">Click any draft to resume editing or review your generated message.</p>
     <ul id="draftList" style="list-style: none; padding: 0;"></ul>
     <p id="status" style="margin-top: 1rem;"></p>
   </div>
 
   <script type="module">
-
     if (!localStorage.getItem('userId')) {
-  window.location.href = 'login.html';
-}
+      window.location.href = 'login.html';
+    }
 
     import { db } from './firebase.js';
     import {
@@ -53,6 +53,7 @@
         querySnapshot.forEach(docSnap => {
           const data = docSnap.data();
           const draftId = docSnap.id;
+          const isComplete = data.generatedMessage && data.generatedMessage.trim() !== "";
 
           const li = document.createElement('li');
           li.style.borderBottom = "1px solid #ccc";
@@ -66,9 +67,20 @@
           summaryDiv.onclick = () => resumeDraft(draftId);
 
           const summary = `
-            <strong>${data.title || data.topic || 'Untitled Draft'}</strong><br/>
-            ${data.recommendation || 'No recommendation'}<br/>
-            <em>Last edited: ${data.lastEditedAt?.seconds ? new Date(data.lastEditedAt.seconds * 1000).toLocaleString() : 'Unknown'}</em>
+            <div>
+              <strong>${data.title || data.topic || 'Untitled Draft'}</strong>
+              ${isComplete
+                ? '<span style="color: green; font-weight: normal;">🟢 Complete</span>'
+                : '<span style="color: orange; font-weight: normal;">📝 In Progress</span>'}
+            </div>
+            <div style="margin-top: 0.25rem;">
+              <small>${data.recommendation || 'No recommendation provided.'}</small>
+            </div>
+            <div style="margin-top: 0.25rem; font-size: 0.85rem; color: #666;">
+              Last edited: ${data.lastEditedAt?.seconds
+                ? new Date(data.lastEditedAt.seconds * 1000).toLocaleString()
+                : 'Unknown'}
+            </div>
           `;
           summaryDiv.innerHTML = summary;
 
@@ -94,8 +106,15 @@
         const docRef = doc(db, "users", userId, "drafts", draftId);
         const snap = await getDoc(docRef);
         if (snap.exists()) {
-          localStorage.setItem('messageDraft', JSON.stringify(snap.data()));
-          window.location.href = 'step6.html';
+          const data = snap.data();
+          localStorage.setItem('messageDraft', JSON.stringify(data));
+
+          // Go to Step 7 if it has a generated message
+          if (data.generatedMessage && data.generatedMessage.trim() !== "") {
+            window.location.href = 'step7.html';
+          } else {
+            window.location.href = 'step6.html';
+          }
         } else {
           alert("Draft not found.");
         }
