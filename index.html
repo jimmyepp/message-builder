@@ -13,7 +13,8 @@
   <h1>Welcome to the Message Builder</h1>
   <p>This tool will guide you step-by-step to build a clear, structured message. Ready?</p>
 
-  <button id="startBtn">Start New Message</button>
+<button onclick="startNewMessage()">Start New Message</button>
+
 </div>
   <script>
     document.getElementById('startBtn').addEventListener('click', function () {
@@ -28,6 +29,12 @@
       // Go to first step
       window.location.href = 'step1.html';
     });
+
+function startNewMessage() {
+    localStorage.clear();
+    window.location.href = 'step1.html';
+  }
+    
   </script>
 
 </body>
