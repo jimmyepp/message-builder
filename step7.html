@@ -49,8 +49,9 @@
     </form>
 
     <h3>Generated Result:</h3>
-    <textarea id="result" rows="12" style="width: 100%; font-size: 1rem;"></textarea>
-    <button onclick="copyResult()">Copy to Clipboard</button>
+<textarea id="result" rows="12" style="width: 100%; font-size: 1rem;"></textarea>
+<button onclick="copyResult()">Copy to Clipboard</button>
+<button id="saveDraftBtn">Save Draft</button>
   </div>
 
  <script type="module">
@@ -132,6 +133,21 @@
   }
 
   window.copyResult = copyResult;
+
+  document.getElementById("saveDraftBtn").addEventListener("click", async () => {
+  const resultText = document.getElementById("result").value.trim();
+  if (!resultText) {
+    alert("Nothing to save yet.");
+    return;
+  }
+
+  draft.result = resultText;
+  localStorage.setItem("messageDraft", JSON.stringify(draft));
+  await autoSaveDraft();
+  alert("Draft saved!");
+});
+
+  
 </script>
 
 
