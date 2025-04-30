@@ -53,53 +53,85 @@
     <button onclick="copyResult()">Copy to Clipboard</button>
   </div>
 
-  <script>
-    const draft = JSON.parse(localStorage.getItem('messageDraft')) || {};
+  <script type="module">
+  import { db } from './firebase.js';
+  import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
 
-    document.getElementById('audience').textContent = draft.audience || '[No audience set]';
-    document.getElementById('topic').textContent = draft.topic || '[No topic set]';
-    document.getElementById('recommendation').textContent = draft.recommendation || '[No recommendation set]';
+  const draft = JSON.parse(localStorage.getItem('messageDraft')) || {};
 
-    const ul = document.getElementById('supportingPointsList');
-    const supportingPoints = draft.supportingPoints || [];
+  document.getElementById('audience').textContent = draft.audience || '[No audience set]';
+  document.getElementById('topic').textContent = draft.topic || '[No topic set]';
+  document.getElementById('recommendation').textContent = draft.recommendation || '[No recommendation set]';
 
-    supportingPoints.forEach(point => {
-      const li = document.createElement('li');
-      li.textContent = point;
-      ul.appendChild(li);
-    });
+  const ul = document.getElementById('supportingPointsList');
+  const supportingPoints = draft.supportingPoints || [];
 
-    document.getElementById('transformForm').addEventListener('submit', async function (e) {
-      e.preventDefault();
+  supportingPoints.forEach(point => {
+    const li = document.createElement('li');
+    li.textContent = point;
+    ul.appendChild(li);
+  });
 
-      document.getElementById("result").value = "Generating... please wait...";
+  async function autoSaveDraft() {
+    const userId = localStorage.getItem('userId');
+    if (!userId) return;
 
-      const type = document.getElementById("formatSelect").value;
-      const selectedFrame = document.getElementById("frameSelect").value;
+    const id = draft.id || Date.now().toString();
+    draft.id = id;
+    draft.lastEditedAt = new Date().toISOString();
 
-      const response = await fetch("/.netlify/functions/gptHandler", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          topic: draft.topic,
-          audience: draft.audience,
-          recommendation: draft.recommendation,
-          supportingPoints: draft.supportingPoints || [],
-          type: type,
-          frame: selectedFrame
-        })
+    try {
+      await setDoc(doc(db, "users", userId, "drafts", id), {
+        ...draft,
+        createdAt: draft.createdAt || serverTimestamp(),
+        lastEditedAt: serverTimestamp()
       });
 
-      const data = await response.json();
-      document.getElementById("result").value = data.result || "Something went wrong.";
+      localStorage.setItem('messageDraft', JSON.stringify(draft));
+    } catch (err) {
+      console.error("Auto-save failed:", err);
+    }
+  }
+
+  document.getElementById('transformForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    document.getElementById("result").value = "Generating... please wait...";
+
+    const type = document.getElementById("formatSelect").value;
+    const selectedFrame = document.getElementById("frameSelect").value;
+
+    const response = await fetch("/.netlify/functions/gptHandler", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        topic: draft.topic,
+        audience: draft.audience,
+        recommendation: draft.recommendation,
+        supportingPoints: draft.supportingPoints || [],
+        type: type,
+        frame: selectedFrame
+      })
     });
 
-    function copyResult() {
-      const text = document.getElementById("result").value;
-      navigator.clipboard.writeText(text)
-        .then(() => alert("Copied to clipboard!"))
-        .catch(err => alert("Failed to copy: " + err));
-    }
-  </script>
+    const data = await response.json();
+    document.getElementById("result").value = data.result || "Something went wrong.";
+
+    // ✅ Save result to draft
+    draft.result = data.result || "";
+    await autoSaveDraft();
+  });
+
+  function copyResult() {
+    const text = document.getElementById("result").value;
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard!"))
+      .catch(err => alert("Failed to copy: " + err));
+  }
+
+  // Optional: expose for debugging
+  window.copyResult = copyResult;
+</script>
+
 </body>
 </html>
