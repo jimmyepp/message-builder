@@ -18,6 +18,13 @@
 <a href="my-drafts.html">View Saved Drafts</a>
 
 </div>
+
+<script>
+  if (!localStorage.getItem('userId')) {
+    window.location.href = 'login.html';
+  }
+</script>
+
   <script>
     document.getElementById('startBtn').addEventListener('click', function () {
       // Clear any previous message data

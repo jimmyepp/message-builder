@@ -18,6 +18,12 @@
     <button type="submit">Next</button>
   </form>
 </div>
+
+<script>
+  if (!localStorage.getItem('userId')) {
+    window.location.href = 'login.html';
+  }
+</script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('step1Form');
