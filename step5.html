@@ -1,65 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Step 5: Benefit Points</title>
-    <meta charset="UTF-8">
-  <title>Step 1</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Step 5: Benefits</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="wrapper">
-  <h1>Step 5 of 8</h1>
+    <h1>Step 5 of 8</h1>
 
-  <p><strong>This is your recommendation:</strong> <span id="displayRecommendation"></span></p>
-  <p>Why is your recommendation beneficial?<br>Enter one point at a time.</p>
+    <p>This is your recommendation: <strong id="recommendationDisplay">[recommendation]</strong></p>
+    <p>Why is your recommendation beneficial to your audience?<br>
+    Enter one point at a time:</p>
 
-  <form id="step5Form">
-    <input type="text" id="benefitPointInput" placeholder="Enter a benefit" required>
-    <button type="submit">Add Point</button>
-  </form>
+    <form id="benefitForm">
+      <input type="text" id="benefitInput" placeholder="Enter a benefit..." />
+      <button type="submit">Add Point</button>
+    </form>
 
-  <ul id="benefitList"></ul>
+    <ul id="benefitsList"></ul>
 
-  <button onclick="goNext()">Done Brainstorming</button>
-</div>
+    <button onclick="nextStep()">Next</button>
+  </div>
+
   <script>
-    // Show saved recommendation at the top
-    document.getElementById('displayRecommendation').textContent = localStorage.getItem('recommendation') || '[No recommendation found]';
+    const recommendation = localStorage.getItem('recommendation') || '[Not set]';
+    document.getElementById('recommendationDisplay').textContent = recommendation;
 
-    const form = document.getElementById('step5Form');
-    const input = document.getElementById('benefitPointInput');
-    const benefitList = document.getElementById('benefitList');
+    const list = document.getElementById('benefitsList');
+    const form = document.getElementById('benefitForm');
+    const input = document.getElementById('benefitInput');
 
-    let benefitPoints = JSON.parse(localStorage.getItem('benefitPoints')) || [];
+    let benefits = JSON.parse(localStorage.getItem('benefits')) || [];
 
-    // Display already entered points
-    benefitPoints.forEach(point => {
-      const li = document.createElement('li');
-      li.textContent = point;
-      benefitList.appendChild(li);
-    });
+    function saveBenefits() {
+      localStorage.setItem('benefits', JSON.stringify(benefits));
+      renderBenefits();
+    }
 
-    form.addEventListener('submit', function(e) {
+    function renderBenefits() {
+      list.innerHTML = '';
+      benefits.forEach((point, index) => {
+        const li = document.createElement('li');
+
+        const span = document.createElement('span');
+        span.textContent = point;
+        span.style.marginRight = '10px';
+
+        const editBtn = document.createElement('button');
+        editBtn.textContent = '✏️';
+        editBtn.style.padding = '2px 6px';
+        editBtn.style.fontSize = '1rem';
+        editBtn.style.background = 'transparent';
+        editBtn.style.border = 'none';
+        editBtn.style.cursor = 'pointer';
+        editBtn.style.verticalAlign = 'middle';
+        editBtn.onclick = () => enterEditMode(index, point);
+
+        li.appendChild(span);
+        li.appendChild(editBtn);
+        list.appendChild(li);
+      });
+    }
+
+    function enterEditMode(index, oldValue) {
+      const li = list.children[index];
+      li.innerHTML = '';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = oldValue;
+      input.style.marginRight = '10px';
+
+      const saveBtn = document.createElement('button');
+      saveBtn.textContent = 'Save';
+      saveBtn.onclick = () => {
+        benefits[index] = input.value.trim();
+        saveBenefits();
+      };
+
+      li.appendChild(input);
+      li.appendChild(saveBtn);
+    }
+
+    form.addEventListener('submit', function (e) {
       e.preventDefault();
       const value = input.value.trim();
-      if (value) {
-        benefitPoints.push(value);
-        localStorage.setItem('benefitPoints', JSON.stringify(benefitPoints));
-
-        const li = document.createElement('li');
-        li.textContent = value;
-        benefitList.appendChild(li);
-
-        input.value = "";
-      }
+      if (!value) return;
+      benefits.push(value);
+      input.value = '';
+      saveBenefits();
     });
 
-    function goNext() {
+    function nextStep() {
+      if (benefits.length < 1) {
+        alert("Please add at least one benefit before continuing.");
+        return;
+      }
       window.location.href = 'step6.html';
     }
-  </script>
 
+    renderBenefits();
+  </script>
 </body>
 </html>
