@@ -34,7 +34,7 @@
     const form = document.getElementById('step6Form');
 
     const uniquePoints = JSON.parse(localStorage.getItem('uniquePoints')) || [];
-    const benefitPoints = JSON.parse(localStorage.getItem('benefitPoints')) || [];
+    const benefitPoints = JSON.parse(localStorage.getItem('benefits')) || [];
     const allPoints = uniquePoints.concat(benefitPoints);
 
     allPoints.forEach((point, index) => {
