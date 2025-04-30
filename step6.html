@@ -24,50 +24,55 @@
     <button type="submit">Next</button>
   </form>
 </div>
-  <script>
-  const draft = JSON.parse(localStorage.getItem('messageDraft')) || {};
-  const uniquePoints = draft.uniquePoints || [];
-  const benefitPoints = draft.benefits || [];
+ <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const draft = JSON.parse(localStorage.getItem('messageDraft')) || {};
+    const uniquePoints = draft.uniquePoints || [];
+    const benefitPoints = draft.benefits || [];
+    console.log("Draft loaded in Step 6:", draft);
 
-  const combinedPoints = [...uniquePoints, ...benefitPoints];
-  const list = document.getElementById('supportingPointsList');
 
-  combinedPoints.forEach((point, index) => {
-    const li = document.createElement('li');
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.value = point;
-    checkbox.id = `point-${index}`;
+    const combinedPoints = [...uniquePoints, ...benefitPoints];
+    const list = document.getElementById('supportingPointsList');
 
-    const label = document.createElement('label');
-    label.htmlFor = `point-${index}`;
-    label.textContent = point;
+    combinedPoints.forEach((point, index) => {
+      const li = document.createElement('li');
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.value = point;
+      checkbox.id = `point-${index}`;
 
-    li.appendChild(checkbox);
-    li.appendChild(label);
-    list.appendChild(li);
-  });
+      const label = document.createElement('label');
+      label.htmlFor = `point-${index}`;
+      label.textContent = point;
 
-  function nextStep() {
-    const selected = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
-      .map(cb => cb.value);
+      li.appendChild(checkbox);
+      li.appendChild(label);
+      list.appendChild(li);
+    });
 
-    if (selected.length !== 3) {
-      alert("Please select exactly 3 supporting points.");
-      return;
+    function saveToDraft(updates) {
+      const existing = JSON.parse(localStorage.getItem('messageDraft')) || {};
+      const updated = { ...existing, ...updates };
+      localStorage.setItem('messageDraft', JSON.stringify(updated));
     }
 
-    saveToDraft({ supportingPoints: selected });
-    localStorage.setItem('supportingPoints', JSON.stringify(selected));
-    window.location.href = 'step7.html';
-  }
+    window.nextStep = function () {
+      const selected = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+        .map(cb => cb.value);
 
-  function saveToDraft(updates) {
-    const existing = JSON.parse(localStorage.getItem('messageDraft')) || {};
-    const updated = { ...existing, ...updates };
-    localStorage.setItem('messageDraft', JSON.stringify(updated));
-  }
+      if (selected.length !== 3) {
+        alert("Please select exactly 3 supporting points.");
+        return;
+      }
+
+      saveToDraft({ supportingPoints: selected });
+      localStorage.setItem('supportingPoints', JSON.stringify(selected));
+      window.location.href = 'step7.html';
+    }
+  });
 </script>
+
 
 
 
