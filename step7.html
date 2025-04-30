@@ -115,8 +115,13 @@
     });
 
     const data = await response.json();
-    const resultText = data.result || "Something went wrong.";
-    document.getElementById("result").value = resultText;
+const resultText = data.result || "Something went wrong.";
+document.getElementById("result").value = resultText;
+
+draft.generatedMessage = resultText;
+localStorage.setItem("messageDraft", JSON.stringify(draft));  // ✅ Sync to localStorage
+await autoSaveDraft();
+
 
     // Save to draft
     draft.generatedMessage = resultText;
