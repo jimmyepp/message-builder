@@ -17,136 +17,89 @@
 
     <h3>Supporting Points:</h3>
     <ul id="supportingPointsList"></ul>
-<button onclick="saveDraftToFirestore()">💾 Save Draft</button>
-<p id="saveStatus" style="margin-top: 0.5rem;"></p>
 
     <hr />
 
     <h2>Choose How to Transform Your Message:</h2>
-    <ul>
-      <li><button onclick="sendToGPT('email')">Create Email</button></li>
-      <li><button onclick="sendToGPT('elevator pitch')">Create Elevator Pitch</button></li>
-      <li><button onclick="sendToGPT('web page copy')">Create Web Page Copy</button></li>
-      <li><button onclick="sendToGPT('blog content ideas')">Get Blog Content Ideas</button></li>
-    </ul>
-<h3>Reframe Your Message (Optional)</h3>
-<label for="frameSelect">Choose a strategic frame:</label>
-<select id="frameSelect">
-  <option value="">– None –</option>
-  <option value="positive">Positive Frame</option>
-  <option value="negative">Negative Frame</option>
-  <option value="balanced">Balanced Frame</option>
-  <option value="attribute">Attribute Frame</option>
-  <option value="benefit">Benefit Frame</option>
-  <option value="settlement">Settlement Frame</option>
-  <option value="assembly">Assembly Frame</option>
-  <option value="inverted">Inverted Frame</option>
-</select>
+    <form id="transformForm">
+      <label for="formatSelect">Select a format:</label>
+      <select id="formatSelect" required>
+        <option value="">– Select –</option>
+        <option value="email">Email</option>
+        <option value="elevator pitch">Elevator Pitch</option>
+        <option value="slide copy">Slide Copy</option>
+        <option value="one-pager">One-Pager</option>
+        <option value="talking points">Spoken Talking Points</option>
+      </select>
+
+      <label for="frameSelect" style="margin-top: 1rem;">Optional: Reframe your message</label>
+      <select id="frameSelect">
+        <option value="">– None –</option>
+        <option value="positive">Positive Frame</option>
+        <option value="negative">Negative Frame</option>
+        <option value="balanced">Balanced Frame</option>
+        <option value="attribute">Attribute Frame</option>
+        <option value="benefit">Benefit Frame</option>
+        <option value="settlement">Settlement Frame</option>
+        <option value="assembly">Assembly Frame</option>
+        <option value="inverted">Inverted Frame</option>
+      </select>
+
+      <button type="submit">Generate Message</button>
+    </form>
 
     <h3>Generated Result:</h3>
     <textarea id="result" rows="12" style="width: 100%; font-size: 1rem;"></textarea>
     <button onclick="copyResult()">Copy to Clipboard</button>
-  
-<button onclick="logout()">Logout</button>
-
-
-
   </div>
 
+  <script>
+    const draft = JSON.parse(localStorage.getItem('messageDraft')) || {};
 
-<script>
-  function logout() {
-    localStorage.clear();
-    window.location.href = 'login.html';
-  }
-</script>
+    document.getElementById('audience').textContent = draft.audience || '[No audience set]';
+    document.getElementById('topic').textContent = draft.topic || '[No topic set]';
+    document.getElementById('recommendation').textContent = draft.recommendation || '[No recommendation set]';
 
-<script>
-  const draft = JSON.parse(localStorage.getItem('messageDraft')) || {};
+    const ul = document.getElementById('supportingPointsList');
+    const supportingPoints = draft.supportingPoints || [];
 
-  document.getElementById('audience').textContent = draft.audience || '[No audience set]';
-  document.getElementById('topic').textContent = draft.topic || '[No topic set]';
-  document.getElementById('recommendation').textContent = draft.recommendation || '[No recommendation set]';
-
-  const ul = document.getElementById('supportingPointsList');
-  const supportingPoints = draft.supportingPoints || [];
-
-  supportingPoints.forEach(point => {
-    const li = document.createElement('li');
-    li.textContent = point;
-    ul.appendChild(li);
-  });
-
-  async function sendToGPT(type) {
-    document.getElementById("result").value = "Generating... please wait...";
-
-    const selectedFrame = document.getElementById("frameSelect").value;
-
-    const response = await fetch("/.netlify/functions/gptHandler", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        topic: draft.topic,
-        audience: draft.audience,
-        recommendation: draft.recommendation,
-        supportingPoints: draft.supportingPoints || [],
-        type: type,
-        frame: selectedFrame
-      })
+    supportingPoints.forEach(point => {
+      const li = document.createElement('li');
+      li.textContent = point;
+      ul.appendChild(li);
     });
 
-    const data = await response.json();
-    document.getElementById("result").value = data.result || "Something went wrong.";
-  }
+    document.getElementById('transformForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
 
-  function copyResult() {
-    const text = document.getElementById("result").value;
-    navigator.clipboard.writeText(text)
-      .then(() => alert("Copied to clipboard!"))
-      .catch(err => alert("Failed to copy: " + err));
-  }
-</script>
+      document.getElementById("result").value = "Generating... please wait...";
 
-<script type="module">
-  import { db } from './firebase.js';
-import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
+      const type = document.getElementById("formatSelect").value;
+      const selectedFrame = document.getElementById("frameSelect").value;
 
-async function saveDraftToFirestore() {
-  const draft = JSON.parse(localStorage.getItem('messageDraft')) || {};
-  const userId = localStorage.getItem('userId');
-  const status = document.getElementById('saveStatus');
+      const response = await fetch("/.netlify/functions/gptHandler", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topic: draft.topic,
+          audience: draft.audience,
+          recommendation: draft.recommendation,
+          supportingPoints: draft.supportingPoints || [],
+          type: type,
+          frame: selectedFrame
+        })
+      });
 
-  if (!userId) {
-    status.textContent = "You're not logged in.";
-    return;
-  }
-
-  const id = draft.id || Date.now().toString();
-  draft.id = id;
-
-  try {
-    await setDoc(doc(db, "users", userId, "drafts", id), {
-      ...draft,
-      lastEditedAt: serverTimestamp(),
-      createdAt: draft.createdAt || serverTimestamp()
+      const data = await response.json();
+      document.getElementById("result").value = data.result || "Something went wrong.";
     });
 
-    localStorage.setItem('messageDraft', JSON.stringify(draft));
-    status.textContent = "✅ Draft saved!";
-  } catch (err) {
-    console.error("Save failed:", err);
-    status.textContent = "❌ Save failed: " + err.message;
-  }
-}
-
-// 🔥 Make it accessible to the button
-window.saveDraftToFirestore = saveDraftToFirestore;
-
-
-</script>
-
-
-
-
+    function copyResult() {
+      const text = document.getElementById("result").value;
+      navigator.clipboard.writeText(text)
+        .then(() => alert("Copied to clipboard!"))
+        .catch(err => alert("Failed to copy: " + err));
+    }
+  </script>
 </body>
 </html>
