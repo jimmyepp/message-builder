@@ -43,34 +43,42 @@
   const status = document.getElementById('status');
 
   form.addEventListener('submit', async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
 
-    try {
-      const userCred = await signInWithEmailAndPassword(auth, email, password);
-      localStorage.setItem('userId', userCred.user.uid);
-      localStorage.setItem('userEmail', email);
-      status.textContent = "Login successful!";
-      window.location.href = 'index.html';
-    } catch (err) {
-      if (err.code === 'auth/user-not-found') {
-        // Try creating account
-        try {
-          const userCred = await createUserWithEmailAndPassword(auth, email, password);
-          localStorage.setItem('userId', userCred.user.uid);
-          localStorage.setItem('userEmail', email);
-          status.textContent = "Account created and logged in!";
-          window.location.href = 'index.html';
-        } catch (signupErr) {
-          status.textContent = "Signup failed: " + signupErr.message;
-        }
-      } else {
-        status.textContent = "Login failed: " + err.message;
+  console.log("Trying to log in with:", email);
+
+  try {
+    const userCred = await signInWithEmailAndPassword(auth, email, password);
+    console.log("Logged in!", userCred.user.uid);
+    localStorage.setItem('userId', userCred.user.uid);
+    localStorage.setItem('userEmail', email);
+    status.textContent = "Login successful!";
+    window.location.href = 'index.html';
+  } catch (err) {
+    console.warn("Login failed:", err.code);
+
+    if (err.code === 'auth/user-not-found') {
+      console.log("User not found. Trying to create...");
+      try {
+        const userCred = await createUserWithEmailAndPassword(auth, email, password);
+        console.log("Account created!", userCred.user.uid);
+        localStorage.setItem('userId', userCred.user.uid);
+        localStorage.setItem('userEmail', email);
+        status.textContent = "Account created and logged in!";
+        window.location.href = 'index.html';
+      } catch (signupErr) {
+        console.error("Signup failed:", signupErr.code, signupErr.message);
+        status.textContent = "Signup failed: " + signupErr.message;
       }
+    } else {
+      status.textContent = "Login failed: " + err.message;
     }
-  });
+  }
+});
+
 </script>
 
 </body>
