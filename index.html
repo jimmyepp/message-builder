@@ -17,7 +17,25 @@
 
 <a href="my-drafts.html">View Saved Drafts</a>
 
+<button onclick="logout()">Logout</button>
+
+
 </div>
+
+<script>
+function startNewMessage() {
+  // Keep login info — just reset the message
+  localStorage.removeItem('messageDraft');
+  localStorage.removeItem('topic');
+  localStorage.removeItem('audience');
+  localStorage.removeItem('recommendation');
+  localStorage.removeItem('uniquePoints');
+  localStorage.removeItem('benefitPoints');
+  localStorage.removeItem('supportingPoints');
+  window.location.href = 'step1.html';
+}
+
+</script>
 
 <script>
   if (!localStorage.getItem('userId')) {
@@ -26,18 +44,6 @@
 </script>
 
   <script>
-    document.getElementById('startBtn').addEventListener('click', function () {
-      // Clear any previous message data
-      localStorage.removeItem('topic');
-      localStorage.removeItem('audience');
-      localStorage.removeItem('recommendation');
-      localStorage.removeItem('uniquePoints');
-      localStorage.removeItem('benefitPoints');
-      localStorage.removeItem('supportingPoints');
-
-      // Go to first step
-      window.location.href = 'step1.html';
-    });
 
 function startNewMessage() {
     localStorage.clear();
