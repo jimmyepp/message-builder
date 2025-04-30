@@ -18,8 +18,10 @@
     <h3>Supporting Points:</h3>
     <ul id="supportingPointsList"></ul>
 
-    <button onclick="saveDraftToFirestore()">💾 Save Draft</button>
-<p id="saveStatus" style="margin-top: 0.5rem;"></p>
+<button onclick="saveDraftToFirestore()">💾 Save Draft</button>
+<p id="saveStatus"></p>
+
+<button onclick="forceTestSave()">🔥 Force Save</button>
 
 
     <hr />
@@ -48,8 +50,7 @@
     <h3>Generated Result:</h3>
     <textarea id="result" rows="12" style="width: 100%; font-size: 1rem;"></textarea>
     <button onclick="copyResult()">Copy to Clipboard</button>
-  </div>
-
+  
 <button onclick="logout()">Logout</button>
 
 <script>
@@ -58,6 +59,10 @@
     window.location.href = 'login.html';
   }
 </script>
+
+  </div>
+
+
 
 
 <script>
@@ -111,37 +116,44 @@
   import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
 
   async function saveDraftToFirestore() {
+    const draft = JSON.parse(localStorage.getItem('messageDraft')) || {};
     const userId = localStorage.getItem('userId');
+    const status = document.getElementById('saveStatus');
+
     if (!userId) {
-      console.warn("No user logged in");
+      status.textContent = "You're not logged in.";
       return;
     }
 
-    const draft = JSON.parse(localStorage.getItem('messageDraft') || '{}');
-    if (!draft || Object.keys(draft).length === 0) {
-      console.warn("No draft to save");
-      return;
+    const id = draft.id || Date.now().toString();
+    draft.id = id;
+
+    try {
+      await setDoc(doc(db, "users", userId, "drafts", id), {
+        ...draft,
+        lastEditedAt: serverTimestamp(),
+        createdAt: draft.createdAt || serverTimestamp()
+      });
+
+      localStorage.setItem('messageDraft', JSON.stringify(draft));
+      status.textContent = "✅ Draft saved!";
+    } catch (err) {
+      console.error("Save failed:", err);
+      status.textContent = "❌ Save failed: " + err.message;
     }
-
-    const id = Date.now().toString(); // unique ID per draft
-    await setDoc(doc(db, "users", userId, "drafts", id), {
-      ...draft,
-      createdAt: serverTimestamp()
-    });
-
-    console.log("Draft saved to Firestore!");
   }
 
-import { db } from './firebase.js';
-import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
+  // 🔥 This exposes the function globally so the button works
+  window.saveDraftToFirestore = saveDraftToFirestore;
+    // Optionally call after nextStep() or after sending to GPT:
+  // await saveDraftToFirestore();
 
-async function saveDraftToFirestore() {
+  window.forceTestSave = async function () {
   const draft = JSON.parse(localStorage.getItem('messageDraft')) || {};
   const userId = localStorage.getItem('userId');
-  const status = document.getElementById('saveStatus');
 
   if (!userId) {
-    status.textContent = "You're not logged in.";
+    alert("You're not logged in.");
     return;
   }
 
@@ -149,22 +161,26 @@ async function saveDraftToFirestore() {
   draft.id = id;
 
   try {
+    const { doc, setDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js");
+    const { db } = await import('./firebase.js');
+
     await setDoc(doc(db, "users", userId, "drafts", id), {
       ...draft,
-      lastEditedAt: serverTimestamp(),
-      createdAt: draft.createdAt || serverTimestamp()
+      createdAt: draft.createdAt || serverTimestamp(),
+      lastEditedAt: serverTimestamp()
     });
 
-    status.textContent = "✅ Draft saved!";
+    alert("Draft force-saved!");
   } catch (err) {
-    console.error("Save failed:", err);
-    status.textContent = "❌ Save failed: " + err.message;
+    console.error("Force save failed:", err);
+    alert("Force save failed: " + err.message);
   }
 }
 
-  // Optionally call after nextStep() or after sending to GPT:
-  // await saveDraftToFirestore();
 </script>
+
+
+
 
 </body>
 </html>
