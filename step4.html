@@ -1,65 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Step 4: Unique Points</title>
-    <meta charset="UTF-8">
-  <title>Step 1</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="wrapper">
+    <h1>Step 4 of 8</h1>
 
-  <h1>Step 4 of 8</h1>
+    <p>This is your topic: <strong id="topicDisplay">[topic]</strong></p>
+    <p>Why is your topic unique or different?<br>
+    Enter one point at a time:</p>
 
-  <p><strong>This is your topic:</strong> <span id="displayTopic"></span></p>
-  <p>Why is your topic unique or different?<br>Enter one point at a time.</p>
+    <form id="uniqueForm">
+      <input type="text" id="uniqueInput" placeholder="Enter a unique point..." />
+      <button type="submit">Add Point</button>
+    </form>
 
-  <form id="step4Form">
-    <input type="text" id="uniquePointInput" placeholder="Enter a unique point" required>
-    <button type="submit">Add Point</button>
-  </form>
+    <ul id="uniquePointsList"></ul>
 
-  <ul id="pointsList"></ul>
+    <button onclick="nextStep()">Next</button>
+  </div>
 
-  <button onclick="goNext()">Done Brainstorming</button>
-</div>
   <script>
-    // Show saved topic at the top
-    document.getElementById('displayTopic').textContent = localStorage.getItem('topic') || '[No topic found]';
+    const topic = localStorage.getItem('topic') || '[Not set]';
+    document.getElementById('topicDisplay').textContent = topic;
 
-    const form = document.getElementById('step4Form');
-    const input = document.getElementById('uniquePointInput');
-    const pointsList = document.getElementById('pointsList');
+    const list = document.getElementById('uniquePointsList');
+    const form = document.getElementById('uniqueForm');
+    const input = document.getElementById('uniqueInput');
 
     let uniquePoints = JSON.parse(localStorage.getItem('uniquePoints')) || [];
 
-    uniquePoints.forEach(point => {
-      const li = document.createElement('li');
-      li.textContent = point;
-      pointsList.appendChild(li);
-    });
+    function savePoints() {
+      localStorage.setItem('uniquePoints', JSON.stringify(uniquePoints));
+      renderPoints();
+    }
 
-    form.addEventListener('submit', function(e) {
+    function renderPoints() {
+      list.innerHTML = '';
+      uniquePoints.forEach((point, index) => {
+        const li = document.createElement('li');
+
+        const span = document.createElement('span');
+        span.textContent = point;
+        span.style.marginRight = '10px';
+
+        const editBtn = document.createElement('button');
+        editBtn.textContent = '✏️';
+editBtn.style.padding = '2px 6px';
+editBtn.style.fontSize = '1rem';
+editBtn.style.background = 'transparent';
+editBtn.style.border = 'none';
+editBtn.style.cursor = 'pointer';
+editBtn.style.verticalAlign = 'middle';
+
+        editBtn.onclick = () => enterEditMode(index, point);
+
+        li.appendChild(span);
+        li.appendChild(editBtn);
+        list.appendChild(li);
+      });
+    }
+
+    function enterEditMode(index, oldValue) {
+      const li = list.children[index];
+      li.innerHTML = '';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = oldValue;
+      input.style.marginRight = '10px';
+
+      const saveBtn = document.createElement('button');
+      saveBtn.textContent = 'Save';
+      saveBtn.onclick = () => {
+        uniquePoints[index] = input.value.trim();
+        savePoints();
+      };
+
+      li.appendChild(input);
+      li.appendChild(saveBtn);
+    }
+
+    form.addEventListener('submit', function (e) {
       e.preventDefault();
       const value = input.value.trim();
-      if (value) {
-        uniquePoints.push(value);
-        localStorage.setItem('uniquePoints', JSON.stringify(uniquePoints));
-
-        const li = document.createElement('li');
-        li.textContent = value;
-        pointsList.appendChild(li);
-
-        input.value = "";
-      }
+      if (!value) return;
+      uniquePoints.push(value);
+      input.value = '';
+      savePoints();
     });
 
-    function goNext() {
+    function nextStep() {
+      if (uniquePoints.length < 1) {
+        alert("Please add at least one point before continuing.");
+        return;
+      }
       window.location.href = 'step5.html';
     }
-  </script>
 
+    // Initial render
+    renderPoints();
+  </script>
 </body>
 </html>
