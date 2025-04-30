@@ -19,21 +19,24 @@
   </form>
 </div>
 <script>
-  const form = document.getElementById('step1Form');
-  const input = document.getElementById('topicInput');
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('step1Form');
+    const input = document.getElementById('topicInput');
 
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    saveToDraft({ topic: input.value.trim() });
-    window.location.href = 'step2.html'; // Go to Step 2
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      saveToDraft({ topic: input.value.trim() });
+      window.location.href = 'step2.html';
+    });
+
+    function saveToDraft(updates) {
+      const existing = JSON.parse(localStorage.getItem('messageDraft')) || {};
+      const updated = { ...existing, ...updates };
+      localStorage.setItem('messageDraft', JSON.stringify(updated));
+    }
   });
-
-  function saveToDraft(updates) {
-    const existing = JSON.parse(localStorage.getItem('messageDraft')) || {};
-    const updated = { ...existing, ...updates };
-    localStorage.setItem('messageDraft', JSON.stringify(updated));
-  }
 </script>
+
 
 
 </body>
