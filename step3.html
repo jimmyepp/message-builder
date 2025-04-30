@@ -14,19 +14,31 @@
   <h1>Step 3 of 7</h1>
   <p>What is your recommendation?</p>
 
-  <form id="step3Form">
-    <input type="text" id="recommendationInput" placeholder="Enter your recommendation" required>
-    <button type="submit">Next</button>
-  </form>
+<form id="step3Form">
+  <input type="text" id="titleInput" placeholder="Name this message (optional)" />
+  <input type="text" id="recommendationInput" placeholder="Enter your recommendation" required />
+  <button type="submit">Next</button>
+</form>
+
 </div>
  <script>
+  document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('step3Form');
-    const input = document.getElementById('recommendationInput');
+    const titleInput = document.getElementById('titleInput');
+    const recommendationInput = document.getElementById('recommendationInput');
 
-    form.addEventListener('submit', function(e) {
+    // Autofill title with topic if available and no title exists
+    const draft = JSON.parse(localStorage.getItem('messageDraft')) || {};
+    if (draft.topic && !draft.title) {
+      titleInput.value = draft.topic;
+    }
+
+    form.addEventListener('submit', function (e) {
       e.preventDefault();
-      saveToDraft({ recommendation: input.value.trim() });
-      window.location.href = 'step4.html'; // Go to Step 4
+      const title = titleInput.value.trim();
+      const recommendation = recommendationInput.value.trim();
+      saveToDraft({ title, recommendation });
+      window.location.href = 'step4.html';
     });
 
     function saveToDraft(updates) {
@@ -34,7 +46,9 @@
       const updated = { ...existing, ...updates };
       localStorage.setItem('messageDraft', JSON.stringify(updated));
     }
-  </script>
+  });
+</script>
+
 
 </body>
 </html>
