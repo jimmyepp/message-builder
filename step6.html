@@ -20,19 +20,25 @@
   <h3>Select the 3 strongest points that support your recommendation:</h3>
 
   <form id="step6Form">
-    <ul id="allPointsList"></ul>
+    <ul id="supportingPointsList"></ul>
     <button type="submit">Next</button>
   </form>
 </div>
- <script>
+<script>
   document.addEventListener('DOMContentLoaded', () => {
     const draft = JSON.parse(localStorage.getItem('messageDraft')) || {};
     const uniquePoints = draft.uniquePoints || [];
     const benefitPoints = draft.benefits || [];
+    const combinedPoints = [...uniquePoints, ...benefitPoints];
+
+    // Debug output
     console.log("Draft loaded in Step 6:", draft);
 
+    // Show topic, audience, recommendation
+    document.getElementById('audience').textContent = draft.audience || '[Not set]';
+    document.getElementById('topic').textContent = draft.topic || '[Not set]';
+    document.getElementById('recommendation').textContent = draft.recommendation || '[Not set]';
 
-    const combinedPoints = [...uniquePoints, ...benefitPoints];
     const list = document.getElementById('supportingPointsList');
 
     combinedPoints.forEach((point, index) => {
@@ -67,11 +73,12 @@
       }
 
       saveToDraft({ supportingPoints: selected });
-      localStorage.setItem('supportingPoints', JSON.stringify(selected));
+      localStorage.setItem('supportingPoints', JSON.stringify(selected)); // optional redundancy
       window.location.href = 'step7.html';
     }
   });
 </script>
+
 
 
 
