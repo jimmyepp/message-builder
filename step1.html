@@ -17,7 +17,19 @@
     <input type="text" id="topicInput" placeholder="Enter your topic" required>
     <button type="submit">Next</button>
   </form>
+
+<button onclick="logout()">Logout</button>
+
 </div>
+
+
+<script>
+  function logout() {
+    localStorage.clear();
+    window.location.href = 'login.html';
+  }
+</script>
+
 
 <script>
   if (!localStorage.getItem('userId')) {
