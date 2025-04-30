@@ -24,10 +24,12 @@
 
 
 <script>
-  function logout() {
-    localStorage.clear();
-    window.location.href = 'login.html';
-  }
+function logout() {
+  localStorage.removeItem('userId');
+  localStorage.removeItem('userEmail');
+  window.location.href = 'login.html';
+}
+
 </script>
 
 
