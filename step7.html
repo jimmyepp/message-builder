@@ -53,11 +53,11 @@
     <button onclick="copyResult()">Copy to Clipboard</button>
   </div>
 
-  <script type="module">
+ <script type="module">
   import { db } from './firebase.js';
   import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
 
-  const draft = JSON.parse(localStorage.getItem('messageDraft')) || {};
+  let draft = JSON.parse(localStorage.getItem('messageDraft')) || {};
 
   document.getElementById('audience').textContent = draft.audience || '[No audience set]';
   document.getElementById('topic').textContent = draft.topic || '[No topic set]';
@@ -80,14 +80,14 @@
     draft.id = id;
     draft.lastEditedAt = new Date().toISOString();
 
+    localStorage.setItem('messageDraft', JSON.stringify(draft)); // 🔁 Ensure it's updated before saving
+
     try {
       await setDoc(doc(db, "users", userId, "drafts", id), {
         ...draft,
         createdAt: draft.createdAt || serverTimestamp(),
         lastEditedAt: serverTimestamp()
       });
-
-      localStorage.setItem('messageDraft', JSON.stringify(draft));
     } catch (err) {
       console.error("Auto-save failed:", err);
     }
@@ -115,10 +115,12 @@
     });
 
     const data = await response.json();
-    document.getElementById("result").value = data.result || "Something went wrong.";
+    const resultText = data.result || "Something went wrong.";
+    document.getElementById("result").value = resultText;
 
-    // ✅ Save result to draft
-    draft.result = data.result || "";
+    // ✅ Save updated result into draft
+    draft.result = resultText;
+
     await autoSaveDraft();
   });
 
@@ -129,9 +131,9 @@
       .catch(err => alert("Failed to copy: " + err));
   }
 
-  // Optional: expose for debugging
   window.copyResult = copyResult;
 </script>
+
 
 </body>
 </html>
