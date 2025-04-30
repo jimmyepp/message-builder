@@ -3,19 +3,30 @@ exports.handler = async function (event, context) {
     console.log("Incoming event:", event.body);
     console.log("Using API Key?", !!process.env.OPENAI_API_KEY);
 
-    const { audience, topic, recommendation, supportingPoints, type } = JSON.parse(event.body);
+    const { audience, topic, recommendation, supportingPoints, type, frame } = JSON.parse(event.body);
+
+    const messagingFrames = {
+      positive: "Reframe this message to focus on hope, benefits, or positive transformation. Emphasize opportunities and desirable outcomes.",
+      negative: "Reframe this message to highlight the risks of inaction, urgency, and potential negative consequences.",
+      balanced: "Frame this message to show both the positive opportunity and the risk of doing nothing. Offer a thoughtful, complete perspective.",
+      attribute: "Reframe this message by emphasizing a key feature or characteristic of the topic. Consider how it could be viewed positively or negatively.",
+      benefit: "Reframe this message by focusing on what the audience gets. Translate features into real-life improvements and tangible results.",
+      settlement: "Frame this message around a safer choice versus a risky option. Highlight the stability of your recommendation.",
+      assembly: "Assemble positive, negative, attribute, and benefit frames into a single powerful message that blends both promise and risk.",
+      inverted: "Start with data, details, and context first, then build to the recommendation. Let the audience reach their own conclusion."
+    };
 
     const systemPrompt = `
 You are a copywriter and senior messaging strategist. Your job is to help professionals turn their brainstormed ideas into clear, persuasive, and structured communication.
 
-You work independently, think step-by-step, and ensure the result is focused on the intended audience. Avoid fluff. Use jargon only when appropriate. Prioritize clarity and confidence.
+You work independently, think step-by-step, and ensure the result is focused on the intended audience. Avoid fluff. Do not use jargon at all. Prioritize clarity.
 
-Write succinctly. Short sentences are better. Short paragraphs are better. Use the ideas provided to write compelling copy or brainstorm additional concepts.
+Write succinctly. Short sentences are better. Short paragraphs are better. Do not write long. Use the brainstorm points provided to write compelling copy.
 
 If a tone is provided (e.g., bold, friendly, formal), match your writing style to that tone while keeping the message clear and effective.
     `;
 
-    const userPrompt = `
+    let userPrompt = `
 # OBJECTIVE
 Write a ${type} using the structured messaging information below. Focus on creating a message that is clear, relevant, and persuasive to the intended audience.
 
@@ -25,17 +36,21 @@ Topic: ${topic}
 Recommendation: ${recommendation}
 
 # SUPPORTING POINTS
-${supportingPoints.map((pt, i) => `- ${pt}`).join('\n')}
+${supportingPoints.map((pt) => `- ${pt}`).join('\n')}
 
 # GUIDELINES
 - Focus on the audience’s priorities and needs
 - Emphasize the benefits of the recommendation
 - Keep the structure tight and persuasive
 - Use a tone appropriate for the audience (match if tone is specified)
+`;
 
-# INSTRUCTIONS
-Write only the ${type}. Do not explain or summarize it. Think before you write. Begin when ready.
-    `;
+    // Inject frame-specific instructions if a frame is selected
+    if (frame && messagingFrames[frame]) {
+      userPrompt += `\n\n# FRAME INSTRUCTION\n${messagingFrames[frame]}`;
+    }
+
+    userPrompt += `\n\n# INSTRUCTIONS\nWrite only the ${type}. Do not explain or summarize it. Think before you write. Begin when ready.`;
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
