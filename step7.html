@@ -27,51 +27,68 @@
       <li><button onclick="sendToGPT('web page copy')">Create Web Page Copy</button></li>
       <li><button onclick="sendToGPT('blog content ideas')">Get Blog Content Ideas</button></li>
     </ul>
+<h3>Reframe Your Message (Optional)</h3>
+<label for="frameSelect">Choose a strategic frame:</label>
+<select id="frameSelect">
+  <option value="">– None –</option>
+  <option value="positive">Positive Frame</option>
+  <option value="negative">Negative Frame</option>
+  <option value="balanced">Balanced Frame</option>
+  <option value="attribute">Attribute Frame</option>
+  <option value="benefit">Benefit Frame</option>
+  <option value="settlement">Settlement Frame</option>
+  <option value="assembly">Assembly Frame</option>
+  <option value="inverted">Inverted Frame</option>
+</select>
 
     <h3>Generated Result:</h3>
     <textarea id="result" rows="12" style="width: 100%; font-size: 1rem;"></textarea>
     <button onclick="copyResult()">Copy to Clipboard</button>
   </div>
 
-  <script>
-    document.getElementById('audience').textContent = localStorage.getItem('audience') || '[No audience set]';
-    document.getElementById('topic').textContent = localStorage.getItem('topic') || '[No topic set]';
-    document.getElementById('recommendation').textContent = localStorage.getItem('recommendation') || '[No recommendation set]';
+ <script>
+  document.getElementById('audience').textContent = localStorage.getItem('audience') || '[No audience set]';
+  document.getElementById('topic').textContent = localStorage.getItem('topic') || '[No topic set]';
+  document.getElementById('recommendation').textContent = localStorage.getItem('recommendation') || '[No recommendation set]';
 
-    const supportingPoints = JSON.parse(localStorage.getItem('supportingPoints')) || [];
-    const ul = document.getElementById('supportingPointsList');
+  const supportingPoints = JSON.parse(localStorage.getItem('supportingPoints')) || [];
+  const ul = document.getElementById('supportingPointsList');
 
-    supportingPoints.forEach(point => {
-      const li = document.createElement('li');
-      li.textContent = point;
-      ul.appendChild(li);
+  supportingPoints.forEach(point => {
+    const li = document.createElement('li');
+    li.textContent = point;
+    ul.appendChild(li);
+  });
+
+  async function sendToGPT(type) {
+    document.getElementById("result").value = "Generating... please wait...";
+
+    const selectedFrame = document.getElementById("frameSelect").value;
+
+    const response = await fetch("/.netlify/functions/gptHandler", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        topic: localStorage.getItem('topic'),
+        audience: localStorage.getItem('audience'),
+        recommendation: localStorage.getItem('recommendation'),
+        supportingPoints: supportingPoints,
+        type: type,
+        frame: selectedFrame
+      })
     });
 
-    async function sendToGPT(type) {
-      document.getElementById("result").value = "Generating... please wait...";
+    const data = await response.json();
+    document.getElementById("result").value = data.result || "Something went wrong.";
+  }
 
-      const response = await fetch("/.netlify/functions/gptHandler", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          topic: localStorage.getItem('topic'),
-          audience: localStorage.getItem('audience'),
-          recommendation: localStorage.getItem('recommendation'),
-          supportingPoints: supportingPoints,
-          type: type
-        })
-      });
+  function copyResult() {
+    const text = document.getElementById("result").value;
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard!"))
+      .catch(err => alert("Failed to copy: " + err));
+  }
+</script>
 
-      const data = await response.json();
-      document.getElementById("result").value = data.result || "Something went wrong.";
-    }
-
-    function copyResult() {
-      const text = document.getElementById("result").value;
-      navigator.clipboard.writeText(text)
-        .then(() => alert("Copied to clipboard!"))
-        .catch(err => alert("Failed to copy: " + err));
-    }
-  </script>
 </body>
 </html>
