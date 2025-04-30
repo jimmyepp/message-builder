@@ -15,34 +15,62 @@
 
 <button onclick="startNewMessage()">Start New Message</button>
 
+<a href="my-drafts.html">View Saved Drafts</a>
+
 </div>
-  <script>
-    document.getElementById('startBtn').addEventListener('click', function () {
-      // Clear any previous message data
-      localStorage.removeItem('topic');
-      localStorage.removeItem('audience');
-      localStorage.removeItem('recommendation');
-      localStorage.removeItem('uniquePoints');
-      localStorage.removeItem('benefitPoints');
-      localStorage.removeItem('supportingPoints');
+  <script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js';
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js';
 
-      // Go to first step
-      window.location.href = 'step1.html';
-    });
+  const firebaseConfig = {
+    apiKey: "AIzaSyDwdxBBKdZKWq8607RX9qYXXuSH0Y70-8M",
+    authDomain: "message-builder.firebaseapp.com",
+    projectId: "message-builder",
+    storageBucket: "message-builder.appspot.com",
+    messagingSenderId: "620007229764",
+    appId: "1:620007229764:web:06a24e72c2298ddf022f11",
+    measurementId: "G-V4J3HTB2L9"
+  };
 
-function startNewMessage() {
-    localStorage.clear();
-    window.location.href = 'step1.html';
-  }
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
 
-  function saveToDraft(updates) {
-  const existing = JSON.parse(localStorage.getItem('messageDraft')) || {};
-  const updated = { ...existing, ...updates };
-  localStorage.setItem('messageDraft', JSON.stringify(updated));
-}
+  const form = document.getElementById('loginForm');
+  const status = document.getElementById('status');
 
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-  </script>
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    try {
+      const userCred = await createUserWithEmailAndPassword(auth, email, password);
+      localStorage.setItem('userId', userCred.user.uid);
+      localStorage.setItem('userEmail', email);
+      status.textContent = "Account created!";
+      window.location.href = 'index.html';
+    } catch (err) {
+      if (err.code === 'auth/email-already-in-use') {
+        // Try to sign in instead
+        try {
+          const userCred = await signInWithEmailAndPassword(auth, email, password);
+          localStorage.setItem('userId', userCred.user.uid);
+          localStorage.setItem('userEmail', email);
+          status.textContent = "Logged in!";
+          window.location.href = 'index.html';
+        } catch (signInErr) {
+          console.error("Login failed:", signInErr);
+          status.textContent = "Login failed: " + signInErr.message;
+        }
+      } else {
+        console.error("Signup failed:", err);
+        status.textContent = "Signup failed: " + err.message;
+      }
+    }
+  });
+</script>
+
 
 </body>
 </html>
