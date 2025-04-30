@@ -12,7 +12,7 @@
 
 <form id="loginForm">
   <input type="email" id="email" placeholder="Email" required />
-  <input type="password" id="password" placeholder="Password (min 6 chars)" required />
+<input type="password" id="password" placeholder="Password (min 6 chars)" required autocomplete="current-password" />
   <button type="submit">Login / Sign Up</button>
 </form>
 <p id="status"></p>
@@ -24,7 +24,7 @@
   <!-- Firebase + Auth -->
   <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js';
-  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js';
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js';
 
   const firebaseConfig = {
     apiKey: "AIzaSyDwdxBBKdZKWq8607RX9qYXXuSH0Y70-8M",
@@ -43,43 +43,44 @@
   const status = document.getElementById('status');
 
   form.addEventListener('submit', async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
 
-  console.log("Trying to log in with:", email);
+    console.log("Submitted credentials:", { email, password });
 
-  try {
-    const userCred = await signInWithEmailAndPassword(auth, email, password);
-    console.log("Logged in!", userCred.user.uid);
-    localStorage.setItem('userId', userCred.user.uid);
-    localStorage.setItem('userEmail', email);
-    status.textContent = "Login successful!";
-    window.location.href = 'index.html';
-  } catch (err) {
-    console.warn("Login failed:", err.code);
-
-    if (err.code === 'auth/user-not-found') {
-      console.log("User not found. Trying to create...");
-      try {
-        const userCred = await createUserWithEmailAndPassword(auth, email, password);
-        console.log("Account created!", userCred.user.uid);
-        localStorage.setItem('userId', userCred.user.uid);
-        localStorage.setItem('userEmail', email);
-        status.textContent = "Account created and logged in!";
-        window.location.href = 'index.html';
-      } catch (signupErr) {
-        console.error("Signup failed:", signupErr.code, signupErr.message);
-        status.textContent = "Signup failed: " + signupErr.message;
-      }
-    } else {
-      status.textContent = "Login failed: " + err.message;
+    if (!email || !password || password.length < 6) {
+      status.textContent = "Please enter a valid email and password (min 6 characters)";
+      return;
     }
-  }
-});
 
+    try {
+      const userCred = await createUserWithEmailAndPassword(auth, email, password);
+      localStorage.setItem('userId', userCred.user.uid);
+      localStorage.setItem('userEmail', email);
+      status.textContent = "Account created!";
+      window.location.href = 'index.html';
+    } catch (err) {
+      if (err.code === 'auth/email-already-in-use') {
+        try {
+          const userCred = await signInWithEmailAndPassword(auth, email, password);
+          localStorage.setItem('userId', userCred.user.uid);
+          localStorage.setItem('userEmail', email);
+          status.textContent = "Logged in!";
+          window.location.href = 'index.html';
+        } catch (signInErr) {
+          console.error("Login failed:", signInErr);
+          status.textContent = "Login failed: " + signInErr.message;
+        }
+      } else {
+        console.error("Signup failed:", err);
+        status.textContent = "Signup failed: " + err.message;
+      }
+    }
+  });
 </script>
+
 
 </body>
 </html>
