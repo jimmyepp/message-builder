@@ -46,13 +46,15 @@
     <button onclick="copyResult()">Copy to Clipboard</button>
   </div>
 
- <script>
-  document.getElementById('audience').textContent = localStorage.getItem('audience') || '[No audience set]';
-  document.getElementById('topic').textContent = localStorage.getItem('topic') || '[No topic set]';
-  document.getElementById('recommendation').textContent = localStorage.getItem('recommendation') || '[No recommendation set]';
+<script>
+  const draft = JSON.parse(localStorage.getItem('messageDraft')) || {};
 
-  const supportingPoints = JSON.parse(localStorage.getItem('supportingPoints')) || [];
+  document.getElementById('audience').textContent = draft.audience || '[No audience set]';
+  document.getElementById('topic').textContent = draft.topic || '[No topic set]';
+  document.getElementById('recommendation').textContent = draft.recommendation || '[No recommendation set]';
+
   const ul = document.getElementById('supportingPointsList');
+  const supportingPoints = draft.supportingPoints || [];
 
   supportingPoints.forEach(point => {
     const li = document.createElement('li');
@@ -69,10 +71,10 @@
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        topic: localStorage.getItem('topic'),
-        audience: localStorage.getItem('audience'),
-        recommendation: localStorage.getItem('recommendation'),
-        supportingPoints: supportingPoints,
+        topic: draft.topic,
+        audience: draft.audience,
+        recommendation: draft.recommendation,
+        supportingPoints: draft.supportingPoints || [],
         type: type,
         frame: selectedFrame
       })
@@ -89,6 +91,7 @@
       .catch(err => alert("Failed to copy: " + err));
   }
 </script>
+
 
 </body>
 </html>

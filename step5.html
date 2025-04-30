@@ -25,83 +25,93 @@
   </div>
 
   <script>
-    const recommendation = localStorage.getItem('recommendation') || '[Not set]';
-    document.getElementById('recommendationDisplay').textContent = recommendation;
+  const recommendation = JSON.parse(localStorage.getItem('messageDraft') || '{}').recommendation || '[Not set]';
+  document.getElementById('recommendationDisplay').textContent = recommendation;
 
-    const list = document.getElementById('benefitsList');
-    const form = document.getElementById('benefitForm');
-    const input = document.getElementById('benefitInput');
+  const list = document.getElementById('benefitsList');
+  const form = document.getElementById('benefitForm');
+  const input = document.getElementById('benefitInput');
 
-    let benefits = JSON.parse(localStorage.getItem('benefits')) || [];
+  let benefits = JSON.parse(localStorage.getItem('benefits')) || [];
 
-    function saveBenefits() {
-      localStorage.setItem('benefits', JSON.stringify(benefits));
-      renderBenefits();
-    }
-
-    function renderBenefits() {
-      list.innerHTML = '';
-      benefits.forEach((point, index) => {
-        const li = document.createElement('li');
-
-        const span = document.createElement('span');
-        span.textContent = point;
-        span.style.marginRight = '10px';
-
-        const editBtn = document.createElement('button');
-        editBtn.textContent = '✏️';
-        editBtn.style.padding = '2px 6px';
-        editBtn.style.fontSize = '1rem';
-        editBtn.style.background = 'transparent';
-        editBtn.style.border = 'none';
-        editBtn.style.cursor = 'pointer';
-        editBtn.style.verticalAlign = 'middle';
-        editBtn.onclick = () => enterEditMode(index, point);
-
-        li.appendChild(span);
-        li.appendChild(editBtn);
-        list.appendChild(li);
-      });
-    }
-
-    function enterEditMode(index, oldValue) {
-      const li = list.children[index];
-      li.innerHTML = '';
-
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.value = oldValue;
-      input.style.marginRight = '10px';
-
-      const saveBtn = document.createElement('button');
-      saveBtn.textContent = 'Save';
-      saveBtn.onclick = () => {
-        benefits[index] = input.value.trim();
-        saveBenefits();
-      };
-
-      li.appendChild(input);
-      li.appendChild(saveBtn);
-    }
-
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      const value = input.value.trim();
-      if (!value) return;
-      benefits.push(value);
-      input.value = '';
-      saveBenefits();
-    });
-
-    function nextStep() {
-      if (benefits.length < 1) {
-        alert("Please add at least one benefit before continuing.");
-        return;
-      }
-      window.location.href = 'step6.html';
-    }
-
+  function saveBenefits() {
+    localStorage.setItem('benefits', JSON.stringify(benefits));
+    saveToDraft({ benefits });
     renderBenefits();
-  </script>
+  }
+
+  function renderBenefits() {
+    list.innerHTML = '';
+    benefits.forEach((point, index) => {
+      const li = document.createElement('li');
+
+      const span = document.createElement('span');
+      span.textContent = point;
+      span.style.marginRight = '10px';
+
+      const editBtn = document.createElement('button');
+      editBtn.textContent = '✏️';
+      editBtn.style.padding = '2px 6px';
+      editBtn.style.fontSize = '1rem';
+      editBtn.style.background = 'transparent';
+      editBtn.style.border = 'none';
+      editBtn.style.cursor = 'pointer';
+      editBtn.style.verticalAlign = 'middle';
+
+      editBtn.onclick = () => enterEditMode(index, point);
+
+      li.appendChild(span);
+      li.appendChild(editBtn);
+      list.appendChild(li);
+    });
+  }
+
+  function enterEditMode(index, oldValue) {
+    const li = list.children[index];
+    li.innerHTML = '';
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = oldValue;
+    input.style.marginRight = '10px';
+
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = 'Save';
+    saveBtn.onclick = () => {
+      benefits[index] = input.value.trim();
+      saveBenefits();
+    };
+
+    li.appendChild(input);
+    li.appendChild(saveBtn);
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const value = input.value.trim();
+    if (!value) return;
+    benefits.push(value);
+    input.value = '';
+    saveBenefits();
+  });
+
+  function nextStep() {
+    if (benefits.length < 1) {
+      alert("Please add at least one benefit before continuing.");
+      return;
+    }
+    window.location.href = 'step6.html';
+  }
+
+  function saveToDraft(updates) {
+    const existing = JSON.parse(localStorage.getItem('messageDraft')) || {};
+    const updated = { ...existing, ...updates };
+    localStorage.setItem('messageDraft', JSON.stringify(updated));
+  }
+
+  // Initial render
+  renderBenefits();
+</script>
+
 </body>
 </html>

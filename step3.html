@@ -19,15 +19,21 @@
     <button type="submit">Next</button>
   </form>
 </div>
-  <script>
+ <script>
     const form = document.getElementById('step3Form');
     const input = document.getElementById('recommendationInput');
 
     form.addEventListener('submit', function(e) {
       e.preventDefault();
-      localStorage.setItem('recommendation', input.value.trim());
+      saveToDraft({ recommendation: input.value.trim() });
       window.location.href = 'step4.html'; // Go to Step 4
     });
+
+    function saveToDraft(updates) {
+      const existing = JSON.parse(localStorage.getItem('messageDraft')) || {};
+      const updated = { ...existing, ...updates };
+      localStorage.setItem('messageDraft', JSON.stringify(updated));
+    }
   </script>
 
 </body>

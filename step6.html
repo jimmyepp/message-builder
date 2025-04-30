@@ -25,51 +25,50 @@
   </form>
 </div>
   <script>
-    // Populate summary
-    document.getElementById('audience').textContent = localStorage.getItem('audience') || '[Not set]';
-    document.getElementById('topic').textContent = localStorage.getItem('topic') || '[Not set]';
-    document.getElementById('recommendation').textContent = localStorage.getItem('recommendation') || '[Not set]';
+  const draft = JSON.parse(localStorage.getItem('messageDraft')) || {};
+  const uniquePoints = draft.uniquePoints || [];
+  const benefitPoints = draft.benefits || [];
 
-    const allPointsList = document.getElementById('allPointsList');
-    const form = document.getElementById('step6Form');
+  const combinedPoints = [...uniquePoints, ...benefitPoints];
+  const list = document.getElementById('supportingPointsList');
 
-    const uniquePoints = JSON.parse(localStorage.getItem('uniquePoints')) || [];
-    const benefitPoints = JSON.parse(localStorage.getItem('benefits')) || [];
-    const allPoints = uniquePoints.concat(benefitPoints);
+  combinedPoints.forEach((point, index) => {
+    const li = document.createElement('li');
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.value = point;
+    checkbox.id = `point-${index}`;
 
-    allPoints.forEach((point, index) => {
-      const li = document.createElement('li');
+    const label = document.createElement('label');
+    label.htmlFor = `point-${index}`;
+    label.textContent = point;
 
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.name = 'selectedPoints';
-      checkbox.value = point;
-      checkbox.id = 'point' + index;
+    li.appendChild(checkbox);
+    li.appendChild(label);
+    list.appendChild(li);
+  });
 
-      const label = document.createElement('label');
-      label.htmlFor = 'point' + index;
-      label.textContent = point;
+  function nextStep() {
+    const selected = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+      .map(cb => cb.value);
 
-      li.appendChild(checkbox);
-      li.appendChild(label);
-      allPointsList.appendChild(li);
-    });
+    if (selected.length !== 3) {
+      alert("Please select exactly 3 supporting points.");
+      return;
+    }
 
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
+    saveToDraft({ supportingPoints: selected });
+    localStorage.setItem('supportingPoints', JSON.stringify(selected));
+    window.location.href = 'step7.html';
+  }
 
-      const selected = Array.from(document.querySelectorAll('input[name="selectedPoints"]:checked'))
-        .map(checkbox => checkbox.value);
+  function saveToDraft(updates) {
+    const existing = JSON.parse(localStorage.getItem('messageDraft')) || {};
+    const updated = { ...existing, ...updates };
+    localStorage.setItem('messageDraft', JSON.stringify(updated));
+  }
+</script>
 
-      if (selected.length !== 3) {
-        alert('Please select exactly 3 points.');
-        return;
-      }
-
-      localStorage.setItem('supportingPoints', JSON.stringify(selected));
-      window.location.href = 'step7.html';
-    });
-  </script>
 
 </body>
 </html>

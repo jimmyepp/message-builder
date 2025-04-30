@@ -34,7 +34,14 @@ function startNewMessage() {
     localStorage.clear();
     window.location.href = 'step1.html';
   }
-    
+
+  function saveToDraft(updates) {
+  const existing = JSON.parse(localStorage.getItem('messageDraft')) || {};
+  const updated = { ...existing, ...updates };
+  localStorage.setItem('messageDraft', JSON.stringify(updated));
+}
+
+
   </script>
 
 </body>
