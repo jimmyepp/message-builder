@@ -61,20 +61,31 @@
 
   let draft = JSON.parse(localStorage.getItem('messageDraft')) || {};
 
-  // Show the current draft content
+  // Display static parts
   document.getElementById('audience').textContent = draft.audience || '[No audience set]';
   document.getElementById('topic').textContent = draft.topic || '[No topic set]';
   document.getElementById('recommendation').textContent = draft.recommendation || '[No recommendation set]';
 
   const ul = document.getElementById('supportingPointsList');
-  const supportingPoints = draft.supportingPoints || [];
-  supportingPoints.forEach(point => {
+  (draft.supportingPoints || []).forEach(point => {
     const li = document.createElement('li');
     li.textContent = point;
     ul.appendChild(li);
   });
 
-  // Firestore save
+  // Load existing result if one exists for selected type
+  const formatSelect = document.getElementById('formatSelect');
+  const resultBox = document.getElementById('result');
+
+  function loadSavedFormatPreview() {
+    const selectedType = formatSelect.value;
+    const saved = draft.generatedMessages?.[selectedType];
+    resultBox.value = saved || "";
+  }
+
+  formatSelect.addEventListener("change", loadSavedFormatPreview);
+
+  // Firestore auto-save
   async function autoSaveDraft() {
     const userId = localStorage.getItem('userId');
     if (!userId) return;
@@ -83,7 +94,7 @@
     draft.id = id;
     draft.lastEditedAt = new Date().toISOString();
 
-    localStorage.setItem("messageDraft", JSON.stringify(draft)); // ✅ sync it first
+    localStorage.setItem("messageDraft", JSON.stringify(draft));
 
     try {
       await setDoc(doc(db, "users", userId, "drafts", id), {
@@ -96,13 +107,18 @@
     }
   }
 
-  // Submit to GPT and save result
+  // GPT generate and store
   document.getElementById('transformForm').addEventListener('submit', async function (e) {
     e.preventDefault();
-    document.getElementById("result").value = "Generating... please wait...";
-
-    const type = document.getElementById("formatSelect").value;
+    const type = formatSelect.value;
     const selectedFrame = document.getElementById("frameSelect").value;
+
+    if (!type) {
+      alert("Please select a format.");
+      return;
+    }
+
+    resultBox.value = "Generating... please wait...";
 
     const response = await fetch("/.netlify/functions/gptHandler", {
       method: "POST",
@@ -119,37 +135,49 @@
 
     const data = await response.json();
     const resultText = data.result || "Something went wrong.";
-    document.getElementById("result").value = resultText;
+    resultBox.value = resultText;
 
-    // ✅ Save result to draft and persist it
-    draft.generatedMessage = resultText;
+    // ✅ Save under generatedMessages[type]
+    if (!draft.generatedMessages) draft.generatedMessages = {};
+    draft.generatedMessages[type] = resultText;
+
     localStorage.setItem("messageDraft", JSON.stringify(draft));
     await autoSaveDraft();
   });
 
-  // Manual Save
+  // Manual save
   document.getElementById("saveDraftBtn").addEventListener("click", async () => {
-    const resultText = document.getElementById("result").value.trim();
-    if (!resultText) {
-      alert("Nothing to save yet.");
+    const type = formatSelect.value;
+    const resultText = resultBox.value.trim();
+
+    if (!type) {
+      alert("Select a format before saving.");
       return;
     }
 
-    draft.generatedMessage = resultText;
+    if (!draft.generatedMessages) draft.generatedMessages = {};
+    draft.generatedMessages[type] = resultText;
+
     localStorage.setItem("messageDraft", JSON.stringify(draft));
     await autoSaveDraft();
     alert("Draft saved!");
   });
 
   function copyResult() {
-    const text = document.getElementById("result").value;
+    const text = resultBox.value;
     navigator.clipboard.writeText(text)
       .then(() => alert("Copied to clipboard!"))
       .catch(err => alert("Failed to copy: " + err));
   }
 
   window.copyResult = copyResult;
+
+  // ✅ Load default if one exists
+  window.addEventListener('DOMContentLoaded', () => {
+    if (formatSelect.value) loadSavedFormatPreview();
+  });
 </script>
+
 
 
 
