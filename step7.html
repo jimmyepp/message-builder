@@ -79,22 +79,21 @@ if (draft.generatedMessages && Object.keys(draft.generatedMessages).length > 0) 
   const li = document.createElement("li");
   li.textContent = "No saved versions yet.";
   savedList.appendChild(li);
-}
-
-  
+}  
 </script>
 
 <script type="module">
   import { db } from './firebase.js';
   import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
 
-  let draft = JSON.parse(localStorage.getItem('messageDraft')) || {};
+  const draft = JSON.parse(localStorage.getItem('messageDraft')) || {};
 
-  // Display static parts
+  // Populate header info
   document.getElementById('audience').textContent = draft.audience || '[No audience set]';
   document.getElementById('topic').textContent = draft.topic || '[No topic set]';
   document.getElementById('recommendation').textContent = draft.recommendation || '[No recommendation set]';
 
+  // Show supporting points
   const ul = document.getElementById('supportingPointsList');
   (draft.supportingPoints || []).forEach(point => {
     const li = document.createElement('li');
@@ -102,19 +101,29 @@ if (draft.generatedMessages && Object.keys(draft.generatedMessages).length > 0) 
     ul.appendChild(li);
   });
 
-  // Load existing result if one exists for selected type
-  const formatSelect = document.getElementById('formatSelect');
-  const resultBox = document.getElementById('result');
+  const resultBox = document.getElementById("result");
+  const formatSelect = document.getElementById("formatSelect");
+  const frameSelect = document.getElementById("frameSelect");
 
+  // 🔁 Load content for selected format
   function loadSavedFormatPreview() {
-    const selectedType = formatSelect.value;
-    const saved = draft.generatedMessages?.[selectedType];
+    const selectedFormat = formatSelect.value;
+    const saved = draft.generatedMessages?.[selectedFormat];
     resultBox.value = saved || "";
   }
 
   formatSelect.addEventListener("change", loadSavedFormatPreview);
 
-  // Firestore auto-save
+  // ✅ Auto-select the first available saved format on load
+  window.addEventListener("DOMContentLoaded", () => {
+    const savedFormats = draft.generatedMessages ? Object.keys(draft.generatedMessages) : [];
+    if (savedFormats.length > 0) {
+      formatSelect.value = savedFormats[0];
+      loadSavedFormatPreview();
+    }
+  });
+
+  // 🔐 Auto-save to Firebase
   async function autoSaveDraft() {
     const userId = localStorage.getItem('userId');
     if (!userId) return;
@@ -136,11 +145,12 @@ if (draft.generatedMessages && Object.keys(draft.generatedMessages).length > 0) 
     }
   }
 
-  // GPT generate and store
+  // 🧠 Generate and save format result
   document.getElementById('transformForm').addEventListener('submit', async function (e) {
     e.preventDefault();
+
     const type = formatSelect.value;
-    const selectedFrame = document.getElementById("frameSelect").value;
+    const frame = frameSelect.value;
 
     if (!type) {
       alert("Please select a format.");
@@ -157,8 +167,8 @@ if (draft.generatedMessages && Object.keys(draft.generatedMessages).length > 0) 
         audience: draft.audience,
         recommendation: draft.recommendation,
         supportingPoints: draft.supportingPoints || [],
-        type: type,
-        frame: selectedFrame
+        type,
+        frame
       })
     });
 
@@ -166,7 +176,7 @@ if (draft.generatedMessages && Object.keys(draft.generatedMessages).length > 0) 
     const resultText = data.result || "Something went wrong.";
     resultBox.value = resultText;
 
-    // ✅ Save under generatedMessages[type]
+    // ✅ Store in generatedMessages
     if (!draft.generatedMessages) draft.generatedMessages = {};
     draft.generatedMessages[type] = resultText;
 
@@ -174,13 +184,13 @@ if (draft.generatedMessages && Object.keys(draft.generatedMessages).length > 0) 
     await autoSaveDraft();
   });
 
-  // Manual save
+  // 💾 Manual Save Button
   document.getElementById("saveDraftBtn").addEventListener("click", async () => {
     const type = formatSelect.value;
     const resultText = resultBox.value.trim();
 
     if (!type) {
-      alert("Select a format before saving.");
+      alert("Please select a format before saving.");
       return;
     }
 
@@ -192,6 +202,7 @@ if (draft.generatedMessages && Object.keys(draft.generatedMessages).length > 0) 
     alert("Draft saved!");
   });
 
+  // 📋 Copy button
   function copyResult() {
     const text = resultBox.value;
     navigator.clipboard.writeText(text)
@@ -200,11 +211,6 @@ if (draft.generatedMessages && Object.keys(draft.generatedMessages).length > 0) 
   }
 
   window.copyResult = copyResult;
-
-  // ✅ Load default if one exists
-  window.addEventListener('DOMContentLoaded', () => {
-    if (formatSelect.value) loadSavedFormatPreview();
-  });
 </script>
 
 
