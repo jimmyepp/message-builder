@@ -110,11 +110,12 @@
           localStorage.setItem('messageDraft', JSON.stringify(data));
 
           // Go to Step 7 if it has a generated message
-          if (data.generatedMessage && data.generatedMessage.trim() !== "") {
-            window.location.href = 'step7.html';
-          } else {
-            window.location.href = 'step6.html';
-          }
+if (data.generatedMessages && Object.keys(data.generatedMessages).length > 0) {
+  window.location.href = 'step7.html';
+} else {
+  window.location.href = 'step6.html';
+}
+
         } else {
           alert("Draft not found.");
         }
