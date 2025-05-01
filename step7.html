@@ -21,6 +21,10 @@
 
     <hr />
 
+    <h3>Saved Versions:</h3>
+<ul id="savedFormatsList"></ul>
+
+
     <h2>Choose How to Transform Your Message:</h2>
     <form id="transformForm">
       <label for="formatSelect">Select a format:</label>
@@ -52,12 +56,33 @@
     <h3>Generated Result:</h3>
 <textarea id="result" rows="12" style="width: 100%; font-size: 1rem;"></textarea>
 
-<p><strong>Saved Generated Result:</strong> <span id="generatedMessage">
-    </span></p>
 
 <button onclick="copyResult()">Copy to Clipboard</button>
 <button id="saveDraftBtn">Save Draft</button>
   </div>
+
+<script type="text/javascript">
+  const savedList = document.getElementById("savedFormatsList");
+
+if (draft.generatedMessages && Object.keys(draft.generatedMessages).length > 0) {
+  Object.entries(draft.generatedMessages).forEach(([format, message]) => {
+    const li = document.createElement("li");
+
+    li.innerHTML = `
+      <strong>${format}:</strong><br/>
+      <small style="color: #666">${message.slice(0, 80)}${message.length > 80 ? '...' : ''}</small>
+    `;
+
+    savedList.appendChild(li);
+  });
+} else {
+  const li = document.createElement("li");
+  li.textContent = "No saved versions yet.";
+  savedList.appendChild(li);
+}
+
+  
+</script>
 
 <script type="module">
   import { db } from './firebase.js';
