@@ -78,6 +78,35 @@
   });
 </script>
 
+<script type="module">
+  import { db } from './firebase.js';
+  import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
+
+  async function saveDraftToFirestore() {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      console.warn("No user logged in");
+      return;
+    }
+
+    const draft = JSON.parse(localStorage.getItem('messageDraft') || '{}');
+    if (!draft || Object.keys(draft).length === 0) {
+      console.warn("No draft to save");
+      return;
+    }
+
+    const id = Date.now().toString(); // unique ID per draft
+    await setDoc(doc(db, "users", userId, "drafts", id), {
+      ...draft,
+      createdAt: serverTimestamp()
+    });
+
+    console.log("Draft saved to Firestore!");
+  }
+
+  // Optionally call after nextStep() or after sending to GPT:
+  // await saveDraftToFirestore();
+</script>
 
 
 
