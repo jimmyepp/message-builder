@@ -13,17 +13,12 @@
     <h2>Your Message Summary</h2>
     <p><strong>Audience:</strong> <span id="audience"></span></p>
     <p><strong>Topic:</strong> <span id="topic"></span></p>
-    <p><strong>Recommendation:</strong> <span id="recommendation">
-    </span></p>
+    <p><strong>Recommendation:</strong> <span id="recommendation"></span></p>
 
     <h3>Supporting Points:</h3>
     <ul id="supportingPointsList"></ul>
 
     <hr />
-
-    <h3>Saved Versions:</h3>
-<ul id="savedFormatsList"></ul>
-
 
     <h2>Choose How to Transform Your Message:</h2>
     <form id="transformForm">
@@ -54,173 +49,92 @@
     </form>
 
     <h3>Generated Result:</h3>
-<textarea id="result" rows="12" style="width: 100%; font-size: 1rem;"></textarea>
-
-
-<button onclick="copyResult()">Copy to Clipboard</button>
-<button id="saveDraftBtn">Save Draft</button>
+    <textarea id="result" rows="12" style="width: 100%; font-size: 1rem;"></textarea>
+    <button onclick="copyResult()">Copy to Clipboard</button>
   </div>
 
-<script type="text/javascript">
-  const savedList = document.getElementById("savedFormatsList");
+  <script type="module">
+    import { db } from './firebase.js';
+    import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
 
-if (draft.generatedMessages && Object.keys(draft.generatedMessages).length > 0) {
-  Object.entries(draft.generatedMessages).forEach(([format, message]) => {
-    const li = document.createElement("li");
-
-    li.innerHTML = `
-      <strong>${format}:</strong><br/>
-      <small style="color: #666">${message.slice(0, 80)}${message.length > 80 ? '...' : ''}</small>
-    `;
-
-    savedList.appendChild(li);
-  });
-} else {
-  const li = document.createElement("li");
-  li.textContent = "No saved versions yet.";
-  savedList.appendChild(li);
-}  
-</script>
-
-<script type="module">
     const draft = JSON.parse(localStorage.getItem('messageDraft')) || {};
 
+    document.getElementById('audience').textContent = draft.audience || '[No audience set]';
+    document.getElementById('topic').textContent = draft.topic || '[No topic set]';
+    document.getElementById('recommendation').textContent = draft.recommendation || '[No recommendation set]';
 
-import { db } from './firebase.js';
-  import { getDoc, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
+    const ul = document.getElementById('supportingPointsList');
+    const supportingPoints = draft.supportingPoints || [];
 
-
-  // Populate header info
-  document.getElementById('audience').textContent = draft.audience || '[No audience set]';
-  document.getElementById('topic').textContent = draft.topic || '[No topic set]';
-  document.getElementById('recommendation').textContent = draft.recommendation || '[No recommendation set]';
-
-  // Show supporting points
-  const ul = document.getElementById('supportingPointsList');
-  (draft.supportingPoints || []).forEach(point => {
-    const li = document.createElement('li');
-    li.textContent = point;
-    ul.appendChild(li);
-  });
-
-  const resultBox = document.getElementById("result");
-  const formatSelect = document.getElementById("formatSelect");
-  const frameSelect = document.getElementById("frameSelect");
-
-  // 🔁 Load content for selected format
-  function loadSavedFormatPreview() {
-    const selectedFormat = formatSelect.value;
-    const saved = draft.generatedMessages?.[selectedFormat];
-    resultBox.value = saved || "";
-  }
-
-  formatSelect.addEventListener("change", loadSavedFormatPreview);
-
-  // ✅ Auto-select the first available saved format on load
-  window.addEventListener("DOMContentLoaded", () => {
-    const savedFormats = draft.generatedMessages ? Object.keys(draft.generatedMessages) : [];
-    if (savedFormats.length > 0) {
-      formatSelect.value = savedFormats[0];
-      loadSavedFormatPreview();
-    }
-  });
-
-  // 🔐 Auto-save to Firebase
-  async function autoSaveDraft() {
-    const userId = localStorage.getItem('userId');
-    if (!userId) return;
-
-    const id = draft.id || Date.now().toString();
-    draft.id = id;
-    draft.lastEditedAt = new Date().toISOString();
-
-    localStorage.setItem("messageDraft", JSON.stringify(draft));
-
-    try {
-      await setDoc(doc(db, "users", userId, "drafts", id), {
-        ...draft,
-        createdAt: draft.createdAt || serverTimestamp(),
-        lastEditedAt: serverTimestamp()
-      });
-    } catch (err) {
-      console.error("Auto-save failed:", err);
-    }
-  }
-
-  // 🧠 Generate and save format result
-  document.getElementById('transformForm').addEventListener('submit', async function (e) {
-    e.preventDefault();
-
-    const type = formatSelect.value;
-
-
-    if (!type) {
-      alert("Please select a format.");
-      return;
-    }
-
-
-
-    resultBox.value = "Generating... please wait...";
-
-    const response = await fetch("/.netlify/functions/gptHandler", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-  topic: draft.topic,
-  audience: draft.audience,
-  recommendation: draft.recommendation,
-  supportingPoints: draft.supportingPoints || [],
-  type,
-  frame: frameSelect.value  // ✅ this is all you need
-})
-
+    supportingPoints.forEach(point => {
+      const li = document.createElement('li');
+      li.textContent = point;
+      ul.appendChild(li);
     });
 
-    const data = await response.json();
-    const resultText = data.result || "Something went wrong.";
-    resultBox.value = resultText;
+    async function autoSaveDraft() {
+      const userId = localStorage.getItem('userId');
+      if (!userId) return;
 
-    // ✅ Store in generatedMessages
-    if (!draft.generatedMessages) draft.generatedMessages = {};
-    draft.generatedMessages[type] = resultText;
+      const id = draft.id || Date.now().toString();
+      draft.id = id;
+      draft.lastEditedAt = new Date().toISOString();
 
-    localStorage.setItem("messageDraft", JSON.stringify(draft));
-    await autoSaveDraft();
-  });
-
-  // 💾 Manual Save Button
-  document.getElementById("saveDraftBtn").addEventListener("click", async () => {
-    const type = formatSelect.value;
-    const resultText = resultBox.value.trim();
-
-    if (!type) {
-      alert("Please select a format before saving.");
-      return;
+      try {
+        await setDoc(doc(db, "users", userId, "drafts", id), {
+          ...draft,
+          createdAt: draft.createdAt || serverTimestamp(),
+          lastEditedAt: serverTimestamp()
+        });
+        localStorage.setItem('messageDraft', JSON.stringify(draft));
+      } catch (err) {
+        console.error("Auto-save failed:", err);
+      }
     }
 
-    if (!draft.generatedMessages) draft.generatedMessages = {};
-    draft.generatedMessages[type] = resultText;
+    document.getElementById('transformForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      document.getElementById("result").value = "Generating... please wait...";
 
-    localStorage.setItem("messageDraft", JSON.stringify(draft));
-    await autoSaveDraft();
-    alert("Draft saved!");
-  });
+      const type = document.getElementById("formatSelect").value;
+      const selectedFrame = document.getElementById("frameSelect").value;
 
-  // 📋 Copy button
-  function copyResult() {
-    const text = resultBox.value;
-    navigator.clipboard.writeText(text)
-      .then(() => alert("Copied to clipboard!"))
-      .catch(err => alert("Failed to copy: " + err));
-  }
+      try {
+        const response = await fetch("/.netlify/functions/gptHandler", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            topic: draft.topic,
+            audience: draft.audience,
+            recommendation: draft.recommendation,
+            supportingPoints: draft.supportingPoints || [],
+            type: type,
+            frame: selectedFrame
+          })
+        });
 
-  window.copyResult = copyResult;
-</script>
+        const data = await response.json();
+        document.getElementById("result").value = data.result || "Something went wrong.";
 
+        // Save to draft
+        if (!draft.generatedMessages) draft.generatedMessages = {};
+        draft.generatedMessages[type] = data.result || "";
+        await autoSaveDraft();
 
+      } catch (err) {
+        console.error("GPT generation failed:", err);
+        document.getElementById("result").value = "Something went wrong.";
+      }
+    });
 
+    function copyResult() {
+      const text = document.getElementById("result").value;
+      navigator.clipboard.writeText(text)
+        .then(() => alert("Copied to clipboard!"))
+        .catch(err => alert("Failed to copy: " + err));
+    }
 
-
+    window.copyResult = copyResult;
+  </script>
 </body>
 </html>
