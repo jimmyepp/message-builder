@@ -31,11 +31,13 @@ exports.handler = async function (event, context) {
     console.log("Incoming event:", body);
     console.log("Using API Key?", !!process.env.OPENAI_API_KEY);
 
-    // TEMP fallback frame instructions
-let frameInstructions = "";
-if (frame === "negative") {
-  frameInstructions = "Use this frame to show what could go wrong if the recommendation is not followed. Be urgent and direct.";
+    // This was TEMP fallback frame instructions
+const frameDoc = await getDoc(doc(db, "frames", frame));
+if (frameDoc.exists()) {
+  frameInstructions = frameDoc.data().longDescription + '\n' +
+                      (frameDoc.data().howToUse || []).join('\n');
 }
+
 
 
     const systemPrompt = `You are a senior messaging strategist helping professionals turn their brainstorms into clear, persuasive messages.
