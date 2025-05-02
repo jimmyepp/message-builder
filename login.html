@@ -19,6 +19,15 @@
 
 
     <p id="status" style="margin-top: 1em;"></p>
+
+<button onclick="logout()">Logout</button>
+<script>
+  function logout() {
+    localStorage.clear();
+    window.location.href = 'login.html';
+  }
+</script>
+    
   </div>
 
   <!-- Firebase + Auth -->
