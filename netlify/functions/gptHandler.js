@@ -1,18 +1,6 @@
 const { Configuration, OpenAIApi } = require("openai");
-const admin = require("firebase-admin");
-const { initializeApp, cert } = require("firebase-admin/app");
-const { getFirestore, doc, getDoc } = require("firebase-admin/firestore");
-
-const serviceAccount = require("./firebase-service-account.json");
-
-// Only initialize Firebase once
-if (!admin.apps.length) {
-  initializeApp({
-    credential: cert(serviceAccount),
-  });
-}
-
-const db = getFirestore();
+const fs = require("fs");
+const path = require("path");
 
 const openai = new OpenAIApi(
   new Configuration({
@@ -42,19 +30,16 @@ exports.handler = async function (event, context) {
 
   const { topic, audience, recommendation, supportingPoints, type, frame } = body;
 
+  // Try to load frame file
   let frameInstructions = "";
   if (frame) {
     try {
-      const frameDoc = await getDoc(doc(db, "frames", frame.toLowerCase()));
-      if (frameDoc.exists()) {
-        const data = frameDoc.data();
-        frameInstructions = data?.longDescription || "";
-        console.log("📚 Frame instructions loaded.");
-      } else {
-        console.warn("⚠️ Frame not found:", frame);
-      }
+      const filePath = path.join(__dirname, `${frame.toLowerCase()}.json`);
+      const frameData = JSON.parse(fs.readFileSync(filePath, "utf8"));
+      frameInstructions = frameData?.longDescription || "";
+      console.log("📚 Frame instructions loaded from file.");
     } catch (error) {
-      console.error("🔥 Error loading frame:", error.message);
+      console.warn("⚠️ Could not load frame file:", error.message);
     }
   }
 
