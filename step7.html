@@ -1,140 +1,89 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Step 7: Transform Your Message</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div class="wrapper">
-    <h1>Step 7 of 7</h1>
+<script type="module">
+  import { db } from './firebase.js';
+  import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
 
-    <h2>Your Message Summary</h2>
-    <p><strong>Audience:</strong> <span id="audience"></span></p>
-    <p><strong>Topic:</strong> <span id="topic"></span></p>
-    <p><strong>Recommendation:</strong> <span id="recommendation"></span></p>
+  const draft = JSON.parse(localStorage.getItem('messageDraft')) || {};
 
-    <h3>Supporting Points:</h3>
-    <ul id="supportingPointsList"></ul>
+  document.getElementById('audience').textContent = draft.audience || '[No audience set]';
+  document.getElementById('topic').textContent = draft.topic || '[No topic set]';
+  document.getElementById('recommendation').textContent = draft.recommendation || '[No recommendation set]';
 
-    <hr />
+  const ul = document.getElementById('supportingPointsList');
+  const supportingPoints = draft.supportingPoints || [];
+  supportingPoints.forEach(point => {
+    const li = document.createElement('li');
+    li.textContent = point;
+    ul.appendChild(li);
+  });
 
-    <h2>Choose How to Transform Your Message:</h2>
-    <form id="transformForm">
-      <label for="formatSelect">Select a format:</label>
-      <select id="formatSelect" required>
-        <option value="">– Select –</option>
-        <option value="email">Email</option>
-        <option value="elevator pitch">Elevator Pitch</option>
-        <option value="slide copy">Slide Copy</option>
-        <option value="one-pager">One-Pager</option>
-        <option value="talking points">Spoken Talking Points</option>
-      </select>
+  async function autoSaveDraft() {
+    const userId = localStorage.getItem('userId');
+    if (!userId) return;
 
-      <label for="frameSelect" style="margin-top: 1rem;">Optional: Reframe your message</label>
-      <select id="frameSelect">
-        <option value="">– None –</option>
-        <option value="positive">Positive Frame</option>
-        <option value="negative">Negative Frame</option>
-        <option value="balanced">Balanced Frame</option>
-        <option value="attribute">Attribute Frame</option>
-        <option value="benefit">Benefit Frame</option>
-        <option value="settlement">Settlement Frame</option>
-        <option value="assembly">Assembly Frame</option>
-        <option value="inverted">Inverted Frame</option>
-      </select>
+    const id = draft.id || Date.now().toString();
+    draft.id = id;
+    draft.lastEditedAt = new Date().toISOString();
 
-      <button type="submit">Generate Message</button>
-    </form>
+    try {
+      await setDoc(doc(db, "users", userId, "drafts", id), {
+        ...draft,
+        createdAt: draft.createdAt || serverTimestamp(),
+        lastEditedAt: serverTimestamp()
+      });
+      localStorage.setItem('messageDraft', JSON.stringify(draft));
+    } catch (err) {
+      console.error("Auto-save failed:", err);
+    }
+  }
 
-    <h3>Generated Result:</h3>
-    <textarea id="result" rows="12" style="width: 100%; font-size: 1rem;"></textarea>
-    <button onclick="copyResult()">Copy to Clipboard</button>
-  </div>
+  document.getElementById('transformForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
 
-  <script type="module">
-    import { db } from './firebase.js';
-    import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
+    const type = document.getElementById("formatSelect").value;
+    const selectedFrame = document.getElementById("frameSelect").value;
 
-    const draft = JSON.parse(localStorage.getItem('messageDraft')) || {};
-
-    document.getElementById('audience').textContent = draft.audience || '[No audience set]';
-    document.getElementById('topic').textContent = draft.topic || '[No topic set]';
-    document.getElementById('recommendation').textContent = draft.recommendation || '[No recommendation set]';
-
-    const ul = document.getElementById('supportingPointsList');
-    const supportingPoints = draft.supportingPoints || [];
-
-    supportingPoints.forEach(point => {
-      const li = document.createElement('li');
-      li.textContent = point;
-      ul.appendChild(li);
-    });
-
-    async function autoSaveDraft() {
-      const userId = localStorage.getItem('userId');
-      if (!userId) return;
-
-      const id = draft.id || Date.now().toString();
-      draft.id = id;
-      draft.lastEditedAt = new Date().toISOString();
-
-      try {
-        await setDoc(doc(db, "users", userId, "drafts", id), {
-          ...draft,
-          createdAt: draft.createdAt || serverTimestamp(),
-          lastEditedAt: serverTimestamp()
-        });
-        localStorage.setItem('messageDraft', JSON.stringify(draft));
-      } catch (err) {
-        console.error("Auto-save failed:", err);
-      }
+    if (!type) {
+      alert("Please select a format.");
+      return;
     }
 
-    document.getElementById('transformForm').addEventListener('submit', async function (e) {
-      e.preventDefault();
-      document.getElementById("result").value = "Generating... please wait...";
+    document.getElementById("result").value = "Generating... please wait...";
 
-      const type = document.getElementById("formatSelect").value;
-      const selectedFrame = document.getElementById("frameSelect").value;
+    try {
+      const response = await fetch("/.netlify/functions/gptHandler", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topic: draft.topic,
+          audience: draft.audience,
+          recommendation: draft.recommendation,
+          supportingPoints: draft.supportingPoints || [],
+          type,
+          frame: selectedFrame // just a string like "negative"
+        })
+      });
 
-      try {
-        const response = await fetch("/.netlify/functions/gptHandler", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            topic: draft.topic,
-            audience: draft.audience,
-            recommendation: draft.recommendation,
-            supportingPoints: draft.supportingPoints || [],
-            type: type,
-            frame: selectedFrame
-          })
-        });
+      const data = await response.json();
+      const result = data.result || "Something went wrong.";
+      document.getElementById("result").value = result;
 
-        const data = await response.json();
-        document.getElementById("result").value = data.result || "Something went wrong.";
+      // Save to draft
+      if (!draft.generatedMessages) draft.generatedMessages = {};
+      draft.generatedMessages[type] = result;
+      await autoSaveDraft();
 
-        // Save to draft
-        if (!draft.generatedMessages) draft.generatedMessages = {};
-        draft.generatedMessages[type] = data.result || "";
-        await autoSaveDraft();
-
-      } catch (err) {
-        console.error("GPT generation failed:", err);
-        document.getElementById("result").value = "Something went wrong.";
-      }
-    });
-
-    function copyResult() {
-      const text = document.getElementById("result").value;
-      navigator.clipboard.writeText(text)
-        .then(() => alert("Copied to clipboard!"))
-        .catch(err => alert("Failed to copy: " + err));
+    } catch (err) {
+      console.error("GPT generation failed:", err);
+      document.getElementById("result").value = "Something went wrong.";
     }
+  });
 
-    window.copyResult = copyResult;
-  </script>
-</body>
-</html>
+  function copyResult() {
+    const text = document.getElementById("result").value;
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard!"))
+      .catch(err => alert("Failed to copy: " + err));
+  }
+
+  window.copyResult = copyResult;
+</script>

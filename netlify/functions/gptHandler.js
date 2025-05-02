@@ -1,10 +1,12 @@
-import OpenAI from "openai";
+const OpenAI = require("openai");
+const fs = require("fs");
+const path = require("path");
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-export const handler = async (event) => {
+exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
@@ -19,25 +21,26 @@ export const handler = async (event) => {
       recommendation,
       supportingPoints,
       type,
-      frame,
-      frameData
+      frame
     } = JSON.parse(event.body);
 
-    // 🧠 Build the final prompt
-    let finalPrompt = "";
+    let promptTemplate = null;
 
-    if (frame && frameData?.promptTemplate) {
-      // Replace template tokens with real values
-      finalPrompt = frameData.promptTemplate
-        .replace("{{doSomething}}", recommendation)
-        .replace("{{consequence1}}", supportingPoints[0] || "")
-        .replace("{{consequence2}}", supportingPoints[1] || "")
-        .replace("{{consequence3}}", supportingPoints[2] || "")
-        .replace("{{recommendation}}", recommendation);
-    } else {
-      // Default fallback prompt
-      finalPrompt = `Write a ${type} for the following situation:\nAudience: ${audience}\nTopic: ${topic}\nRecommendation: ${recommendation}\nSupporting Points:\n- ${supportingPoints.join("\n- ")}`;
+    if (frame) {
+      const framePath = path.join(__dirname, `${frame}.json`);
+      const raw = fs.readFileSync(framePath, "utf-8");
+      const frameJson = JSON.parse(raw);
+      promptTemplate = frameJson.promptTemplate;
     }
+
+    const finalPrompt = promptTemplate
+      ? promptTemplate
+          .replace("{{doSomething}}", recommendation)
+          .replace("{{consequence1}}", supportingPoints[0] || "")
+          .replace("{{consequence2}}", supportingPoints[1] || "")
+          .replace("{{consequence3}}", supportingPoints[2] || "")
+          .replace("{{recommendation}}", recommendation)
+      : `Write a ${type} for the following situation:\nAudience: ${audience}\nTopic: ${topic}\nRecommendation: ${recommendation}\nSupporting Points:\n- ${supportingPoints.join("\n- ")}`;
 
     const chatResponse = await openai.chat.completions.create({
       model: "gpt-4",
