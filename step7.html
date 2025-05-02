@@ -1,4 +1,59 @@
-<script type="module">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Step 7: Transform Your Message</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="wrapper">
+    <h1>Step 7 of 7</h1>
+
+    <h2>Your Message Summary</h2>
+    <p><strong>Audience:</strong> <span id="audience"></span></p>
+    <p><strong>Topic:</strong> <span id="topic"></span></p>
+    <p><strong>Recommendation:</strong> <span id="recommendation"></span></p>
+
+    <h3>Supporting Points:</h3>
+    <ul id="supportingPointsList"></ul>
+
+    <hr />
+
+    <h2>Choose How to Transform Your Message:</h2>
+    <form id="transformForm">
+      <label for="formatSelect">Select a format:</label>
+      <select id="formatSelect" required>
+        <option value="">– Select –</option>
+        <option value="email">Email</option>
+        <option value="elevator pitch">Elevator Pitch</option>
+        <option value="slide copy">Slide Copy</option>
+        <option value="one-pager">One-Pager</option>
+        <option value="talking points">Spoken Talking Points</option>
+      </select>
+
+      <label for="frameSelect" style="margin-top: 1rem;">Optional: Reframe your message</label>
+      <select id="frameSelect">
+        <option value="">– None –</option>
+        <option value="positive">Positive Frame</option>
+        <option value="negative">Negative Frame</option>
+        <option value="balanced">Balanced Frame</option>
+        <option value="attribute">Attribute Frame</option>
+        <option value="benefit">Benefit Frame</option>
+        <option value="settlement">Settlement Frame</option>
+        <option value="assembly">Assembly Frame</option>
+        <option value="inverted">Inverted Frame</option>
+      </select>
+
+      <button type="submit">Generate Message</button>
+    </form>
+
+    <h3>Generated Result:</h3>
+    <textarea id="result" rows="12" style="width: 100%; font-size: 1rem;"></textarea>
+    <button onclick="copyResult()">Copy to Clipboard</button>
+  </div>
+
+  <script type="module">
   import { db } from './firebase.js';
   import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
 
@@ -87,3 +142,6 @@
 
   window.copyResult = copyResult;
 </script>
+
+</body>
+</html>
