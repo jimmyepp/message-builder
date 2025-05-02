@@ -1,6 +1,7 @@
 const { Configuration, OpenAIApi } = require("openai");
 const admin = require("firebase-admin");
 
+// Initialize Firebase Admin SDK
 if (!admin.apps.length) {
   const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
   admin.initializeApp({
@@ -10,17 +11,13 @@ if (!admin.apps.length) {
 
 const db = admin.firestore();
 
-
-exports.handler = async function (event, context) {
+exports.handler = async function (event) {
   console.log("📥 Incoming event:", event.body || event);
 
+  // Parse the request body
   let body;
   try {
-    if (typeof event.body === "object") {
-      body = event.body;
-    } else {
-      body = JSON.parse(event.body);
-    }
+    body = typeof event.body === "string" ? JSON.parse(event.body) : event.body;
   } catch (err) {
     console.error("❌ Failed to parse request body:", err);
     return {
@@ -29,7 +26,7 @@ exports.handler = async function (event, context) {
     };
   }
 
-  const { topic, audience, recommendation, supportingPoints, type, frame } = body;
+  const { topic, audience, recommendation, supportingPoints = [], type, frame } = body;
 
   if (!topic || !audience || !recommendation || !type) {
     return {
@@ -40,23 +37,25 @@ exports.handler = async function (event, context) {
 
   console.log("🧠 Generating for type:", type, "frame:", frame);
 
+  // Optional: Load frame instructions from Firestore
   let frameInstructions = "";
-  try {
-    if (frame) {
-      const docRef = db.collection("frames").doc(frame);
+  if (frame) {
+    try {
+      const docRef = db.collection("frames").doc(frame.toLowerCase());
       const frameDoc = await docRef.get();
       if (frameDoc.exists) {
-        const frameData = frameDoc.data();
-        frameInstructions = frameData.longDescription || frameData.instructions || "";
+        const data = frameDoc.data();
+        frameInstructions = data.longDescription || data.instructions || "";
         console.log("📚 Frame instructions loaded.");
       } else {
-        console.log("⚠️ Frame not found:", frame);
+        console.warn("⚠️ No frame found for:", frame);
       }
+    } catch (err) {
+      console.error("🔥 Error loading frame:", err.message);
     }
-  } catch (err) {
-    console.error("🔥 Error loading frame:", err.message);
   }
 
+  // OpenAI setup
   const openai = new OpenAIApi(new Configuration({ apiKey: process.env.OPENAI_API_KEY }));
 
   const prompt = `
@@ -85,8 +84,8 @@ Please respond with only the completed ${type}. Don't include any extra explanat
     });
 
     const result = completion.data.choices[0].message.content;
-
     console.log("✅ OpenAI response received.");
+
     return {
       statusCode: 200,
       body: JSON.stringify({ result }),
