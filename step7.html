@@ -150,12 +150,22 @@ if (draft.generatedMessages && Object.keys(draft.generatedMessages).length > 0) 
     e.preventDefault();
 
     const type = formatSelect.value;
-    const frame = frameSelect.value;
+
 
     if (!type) {
       alert("Please select a format.");
       return;
     }
+
+
+let frameData = null;
+if (frameSelect.value) {
+  const frameDoc = await getDoc(doc(db, "frames", frameSelect.value));
+  frameData = frameDoc.exists() ? frameDoc.data() : null;
+}
+
+
+
 
     resultBox.value = "Generating... please wait...";
 
@@ -163,13 +173,14 @@ if (draft.generatedMessages && Object.keys(draft.generatedMessages).length > 0) 
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        topic: draft.topic,
-        audience: draft.audience,
-        recommendation: draft.recommendation,
-        supportingPoints: draft.supportingPoints || [],
-        type,
-        frame
-      })
+  topic: draft.topic,
+  audience: draft.audience,
+  recommendation: draft.recommendation,
+  supportingPoints: draft.supportingPoints || [],
+  type,
+  frame: frameSelect.value,
+  frameData
+})
     });
 
     const data = await response.json();
