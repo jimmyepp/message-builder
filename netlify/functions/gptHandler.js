@@ -32,7 +32,7 @@ exports.handler = async function (event, context) {
     console.log("Using API Key?", !!process.env.OPENAI_API_KEY);
 
     // This was TEMP fallback frame instructions
-const frameDoc = await getDoc(doc(db, "frames", frame));
+const frameDoc = await db.collection("frames").doc(frame).get();
 if (frameDoc.exists()) {
   frameInstructions = frameDoc.data().longDescription + '\n' +
                       (frameDoc.data().howToUse || []).join('\n');
