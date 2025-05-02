@@ -2,11 +2,8 @@ const { Configuration, OpenAIApi } = require("openai");
 const fs = require("fs");
 const path = require("path");
 
-const openai = new OpenAIApi(
-  new Configuration({
-    apiKey: process.env.OPENAI_API_KEY,
-  })
-);
+const OpenAI = require("openai");
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 exports.handler = async function (event, context) {
   if (event.httpMethod !== "POST") {
