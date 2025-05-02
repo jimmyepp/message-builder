@@ -1,6 +1,7 @@
 const fetch = require('node-fetch');
 const admin = require('firebase-admin');
 const { getFirestore } = require('firebase-admin/firestore');
+const frameInstructions = frameData?.howToUse?.join('\n') || '';
 
 if (!admin.apps.length) {
   admin.initializeApp();
