@@ -2,10 +2,14 @@ const { Configuration, OpenAIApi } = require("openai");
 const admin = require("firebase-admin");
 
 if (!admin.apps.length) {
-  admin.initializeApp();
+  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
 }
 
 const db = admin.firestore();
+
 
 exports.handler = async function (event, context) {
   console.log("📥 Incoming event:", event.body || event);
