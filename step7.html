@@ -84,7 +84,7 @@ if (draft.generatedMessages && Object.keys(draft.generatedMessages).length > 0) 
 
 <script type="module">
   import { db } from './firebase.js';
-  import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
+  import { getDoc, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
 
   const draft = JSON.parse(localStorage.getItem('messageDraft')) || {};
 
@@ -156,14 +156,6 @@ if (draft.generatedMessages && Object.keys(draft.generatedMessages).length > 0) 
       alert("Please select a format.");
       return;
     }
-
-
-let frameData = null;
-if (frameSelect.value) {
-  const frameDoc = await getDoc(doc(db, "frames", frameSelect.value));
-  frameData = frameDoc.exists() ? frameDoc.data() : null;
-}
-
 
 
 
