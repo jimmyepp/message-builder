@@ -1,3 +1,25 @@
+exports.handler = async function (event, context) {
+  console.log("📥 Incoming event:", event.body || event);
+
+  let body;
+
+  try {
+    // If the body is already an object (in local dev), use it directly
+    if (typeof event.body === "object") {
+      body = event.body;
+    } else {
+      body = JSON.parse(event.body);
+    }
+  } catch (err) {
+    console.error("❌ Failed to parse request body:", err);
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: "Invalid JSON in request body" }),
+    };
+  }
+
+  // ... continue with frame lookup and OpenAI call
+
 const admin = require("firebase-admin");
 
 if (!admin.apps.length) {
