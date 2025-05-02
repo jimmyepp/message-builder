@@ -75,7 +75,24 @@ Supporting Points:
     });
 
     const data = await response.json();
-    console.log("OpenAI response:", data);
+
+if (!response.ok) {
+  console.error("OpenAI error:", data);
+  return {
+    statusCode: response.status,
+    body: JSON.stringify({ error: data.error?.message || "OpenAI API error" }),
+  };
+}
+
+console.log("OpenAI response:", data);
+
+
+if (!audience || !topic || !recommendation || !type) {
+  return {
+    statusCode: 400,
+    body: JSON.stringify({ error: "Missing required input fields." }),
+  };
+}
 
     return {
       statusCode: 200,
