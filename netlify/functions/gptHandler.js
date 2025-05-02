@@ -11,16 +11,23 @@ exports.handler = async function (event, context) {
   console.log("Incoming event:", event.body);
   console.log("Using API Key?", !!process.env.OPENAI_API_KEY);
 
-  let parsedBody;
-  try {
-    parsedBody = typeof event.body === 'string' ? JSON.parse(event.body) : event.body;
-  } catch (err) {
-    console.error("Failed to parse body:", err.message);
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ error: "Invalid JSON in request body" })
-    };
-  }
+if (!event.body) {
+  return {
+    statusCode: 400,
+    body: JSON.stringify({ error: "No request body received" })
+  };
+}
+
+let parsedBody;
+try {
+  parsedBody = JSON.parse(event.body);
+} catch (err) {
+  return {
+    statusCode: 400,
+    body: JSON.stringify({ error: "Invalid JSON in request body" })
+  };
+}
+
 
   const { audience, topic, recommendation, supportingPoints, type, frame } = parsedBody;
 
