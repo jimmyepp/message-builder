@@ -1,110 +1,64 @@
-const fetch = require("node-fetch");
 const admin = require("firebase-admin");
 
 if (!admin.apps.length) {
   admin.initializeApp();
 }
+
 const db = admin.firestore();
 
 exports.handler = async function (event, context) {
+  console.log("📥 Incoming event:", event.body);
+
+  if (!event.body) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: "No request body received" }),
+    };
+  }
+
+  let body;
   try {
-    if (!event.body) {
-      console.error("No request body received");
+    body = JSON.parse(event.body);
+  } catch (err) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: "Invalid JSON in request body" }),
+    };
+  }
+
+  const { frame } = body;
+
+  if (!frame) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: "No frame specified" }),
+    };
+  }
+
+  try {
+    const frameDoc = await db.collection("frames").doc(frame).get();
+    if (!frameDoc.exists) {
       return {
-        statusCode: 400,
-        body: JSON.stringify({ error: "No request body received" }),
+        statusCode: 404,
+        body: JSON.stringify({ error: `Frame "${frame}" not found` }),
       };
     }
 
-    let body;
-    try {
-      body = JSON.parse(event.body);
-    } catch (parseError) {
-      console.error("Invalid JSON:", parseError.message);
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: "Invalid JSON in request body" }),
-      };
-    }
-
-    const { audience, topic, recommendation, supportingPoints, type, frame } = body;
-    console.log("Incoming event:", body);
-    console.log("Using API Key?", !!process.env.OPENAI_API_KEY);
-
-    // This was TEMP fallback frame instructions
-const frameDoc = await db.collection("frames").doc(frame).get();
-if (frameDoc.exists()) {
-  frameInstructions = frameDoc.data().longDescription + '\n' +
-                      (frameDoc.data().howToUse || []).join('\n');
-}
-
-
-
-    const systemPrompt = `You are a senior messaging strategist helping professionals turn their brainstorms into clear, persuasive messages.
-
-Your job is to:
-- Focus on the audience.
-- Think step-by-step.
-- Keep sentences short.
-- Avoid fluff.
-- Use tone that matches the request (e.g., email, pitch).
-${frameInstructions ? `\n\nFRAME INSTRUCTIONS:\n${frameInstructions}` : ''}`;
-
-    const userPrompt = `Write a ${type} for the following:
-
-Audience: ${audience}
-Topic: ${topic}
-Recommendation: ${recommendation}
-Supporting Points:
-- ${supportingPoints?.[0] || ''}
-- ${supportingPoints?.[1] || ''}
-- ${supportingPoints?.[2] || ''}`;
-
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        temperature: 0.7,
-      }),
-    });
-
-    const data = await response.json();
-
-if (!response.ok) {
-  console.error("OpenAI error:", data);
-  return {
-    statusCode: response.status,
-    body: JSON.stringify({ error: data.error?.message || "OpenAI API error" }),
-  };
-}
-
-console.log("OpenAI response:", data);
-
-
-if (!audience || !topic || !recommendation || !type) {
-  return {
-    statusCode: 400,
-    body: JSON.stringify({ error: "Missing required input fields." }),
-  };
-}
+    const frameData = frameDoc.data();
+    console.log("✅ Frame data retrieved:", frameData);
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ result: data.choices?.[0]?.message?.content || "No response from GPT" }),
+      body: JSON.stringify({
+        message: `Frame "${frame}" retrieved successfully.`,
+        frameData,
+      }),
     };
-  } catch (error) {
-    console.error("Error in GPT Handler:", error.message);
+  } catch (err) {
+    console.error("❌ Error retrieving frame from Firestore:", err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: error.message }),
+      body: JSON.stringify({ error: "Failed to retrieve frame data" }),
     };
   }
 };
