@@ -5,6 +5,8 @@ const OpenAI = require("openai");
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 exports.handler = async function (event, context) {
+  console.log("📩 Raw event received:", event);
+
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
@@ -15,7 +17,7 @@ exports.handler = async function (event, context) {
   let body;
   try {
     body = JSON.parse(event.body);
-    console.log("📥 Incoming event:", body);
+    console.log("📬 Parsed body:", body);
   } catch (err) {
     console.error("❌ Failed to parse request body:", err);
     return {
@@ -23,6 +25,7 @@ exports.handler = async function (event, context) {
       body: JSON.stringify({ error: "Invalid JSON in request body" }),
     };
   }
+
 
   const { topic, audience, recommendation, supportingPoints, type, frame } = body;
 
