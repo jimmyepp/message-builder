@@ -1,3 +1,10 @@
+if (event.httpMethod !== "POST") {
+  return {
+    statusCode: 405,
+    body: JSON.stringify({ error: "Method Not Allowed" }),
+  };
+}
+
 const { Configuration, OpenAIApi } = require("openai");
 const admin = require("firebase-admin");
 
