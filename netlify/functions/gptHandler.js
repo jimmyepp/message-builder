@@ -31,18 +31,12 @@ exports.handler = async function (event, context) {
     console.log("Incoming event:", body);
     console.log("Using API Key?", !!process.env.OPENAI_API_KEY);
 
-    let frameInstructions = "";
-    if (frame) {
-      try {
-        const docSnap = await db.collection("frames").doc(frame).get();
-        if (docSnap.exists) {
-          const frameData = docSnap.data();
-          frameInstructions = frameData.longDescription || "";
-        }
-      } catch (err) {
-        console.error("Error fetching frame instructions:", err.message);
-      }
-    }
+    // TEMP fallback frame instructions
+let frameInstructions = "";
+if (frame === "negative") {
+  frameInstructions = "Use this frame to show what could go wrong if the recommendation is not followed. Be urgent and direct.";
+}
+
 
     const systemPrompt = `You are a senior messaging strategist helping professionals turn their brainstorms into clear, persuasive messages.
 
