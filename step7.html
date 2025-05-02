@@ -85,6 +85,9 @@ if (draft.generatedMessages && Object.keys(draft.generatedMessages).length > 0) 
 <script type="module">
     const draft = JSON.parse(localStorage.getItem('messageDraft')) || {};
 
+console.log("Sending prompt with frameInstructions:", frameInstructions);
+
+
 import { db } from './firebase.js';
   import { getDoc, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
 
