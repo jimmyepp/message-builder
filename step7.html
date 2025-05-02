@@ -170,9 +170,9 @@ if (draft.generatedMessages && Object.keys(draft.generatedMessages).length > 0) 
   recommendation: draft.recommendation,
   supportingPoints: draft.supportingPoints || [],
   type,
-  frame: frameSelect.value,
-  frameData
+  frame: frameSelect.value  // ✅ this is all you need
 })
+
     });
 
     const data = await response.json();
