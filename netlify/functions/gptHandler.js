@@ -1,79 +1,69 @@
-const fs = require("fs");
-const path = require("path");
+import OpenAI from "openai";
 
-const OpenAI = require("openai");
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
 
-exports.handler = async function (event, context) {
-  console.log("📩 Raw event received:", event);
-
+export const handler = async (event) => {
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
-      body: JSON.stringify({ error: "Method Not Allowed" }),
+      body: JSON.stringify({ error: "Method Not Allowed" })
     };
   }
 
-  let body;
   try {
-    body = JSON.parse(event.body);
-    console.log("📬 Parsed body:", body);
-  } catch (err) {
-    console.error("❌ Failed to parse request body:", err);
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ error: "Invalid JSON in request body" }),
-    };
-  }
+    const {
+      topic,
+      audience,
+      recommendation,
+      supportingPoints,
+      type,
+      frame,
+      frameData
+    } = JSON.parse(event.body);
 
+    // 🧠 Build the final prompt
+    let finalPrompt = "";
 
-  const { topic, audience, recommendation, supportingPoints, type, frame } = body;
-
-  // Try to load frame file
-  let frameInstructions = "";
-  if (frame) {
-    try {
-      const filePath = path.join(__dirname, `${frame.toLowerCase()}.json`);
-      const frameData = JSON.parse(fs.readFileSync(filePath, "utf8"));
-      frameInstructions = frameData?.longDescription || "";
-      console.log("📚 Frame instructions loaded from file.");
-    } catch (error) {
-      console.warn("⚠️ Could not load frame file:", error.message);
+    if (frame && frameData?.promptTemplate) {
+      // Replace template tokens with real values
+      finalPrompt = frameData.promptTemplate
+        .replace("{{doSomething}}", recommendation)
+        .replace("{{consequence1}}", supportingPoints[0] || "")
+        .replace("{{consequence2}}", supportingPoints[1] || "")
+        .replace("{{consequence3}}", supportingPoints[2] || "")
+        .replace("{{recommendation}}", recommendation);
+    } else {
+      // Default fallback prompt
+      finalPrompt = `Write a ${type} for the following situation:\nAudience: ${audience}\nTopic: ${topic}\nRecommendation: ${recommendation}\nSupporting Points:\n- ${supportingPoints.join("\n- ")}`;
     }
-  }
 
-  try {
-    const prompt = `
-You are an expert communicator.
-
-Your task is to generate a message in the form of a ${type} for the following scenario:
-
-Topic: ${topic}
-Audience: ${audience}
-Recommendation: ${recommendation}
-Supporting Points:
-- ${supportingPoints.join("\n- ")}
-
-${frameInstructions ? "Frame Instructions:\n" + frameInstructions : ""}
-
-The response should be formatted as a professional ${type}.`;
-
-    const completion = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: prompt }],
+    const chatResponse = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        {
+          role: "system",
+          content: "You are a messaging strategist. Generate clear, persuasive content using the user’s framing."
+        },
+        {
+          role: "user",
+          content: finalPrompt
+        }
+      ]
     });
 
-    const result = completion.data.choices[0].message.content;
+    const result = chatResponse.choices[0].message.content;
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ result }),
+      body: JSON.stringify({ result })
     };
   } catch (err) {
-    console.error("🔥 GPT handler error:", err.message);
+    console.error("🔥 GPT handler error:", err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Failed to generate message" }),
+      body: JSON.stringify({ error: "Internal Server Error", details: err.message })
     };
   }
 };
