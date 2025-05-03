@@ -20,8 +20,8 @@ export const handler = async (event) => {
       audience,
       recommendation,
       supportingPoints,
-      format,
-      selectedFrame
+      type: format,
+      frame: selectedFrame
     } = JSON.parse(event.body);
 
     // Try to load frame data
