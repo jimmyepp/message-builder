@@ -4,8 +4,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-const negativeFrame = `
-You will use this frame when a user selects it as part of their message. directions below.
+const negativeFrame = `You will use this frame when a user selects it as part of their message. directions below.
 `;
 
 const messagingFrames = {
