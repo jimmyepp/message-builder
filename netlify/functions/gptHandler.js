@@ -5,18 +5,32 @@ exports.handler = async function (event, context) {
 
     const { audience, topic, recommendation, supportingPoints, type, frame } = JSON.parse(event.body);
 
-    // === 🧩 Load frame from JSON file ===
-    let frameInstructions = '';
-    if (frame) {
-      const framePath = path.join(__dirname, "frames", `${frame}.json`);
-      try {
-        const frameData = JSON.parse(fs.readFileSync(framePath, "utf-8"));
-        frameInstructions = frameData.promptTemplate || frameData.instructions || '';
-        console.log(`✅ Loaded frame "${frame}":`, frameInstructions);
-      } catch (frameErr) {
-        console.warn(`⚠️ Could not load frame file for "${frame}":`, frameErr.message);
-      }
-    }
+    const messagingFrames = {
+      positive: "Reframe this message to focus on hope, benefits, or positive transformation. Emphasize opportunities and desirable outcomes.",
+      negative: "id": "negative",
+  "label": "Negative Frame",
+  "shortDescription": "Emphasize the consequences of inaction to drive urgency.",
+  "longDescription": "Use this frame when the consequences of inaction matter more than the upside of action...",
+  "whenToUse": [
+    "You need your audience to act quickly.",
+    "You’re trying to stop something from getting worse.",
+    "The status quo is riskier than change."
+  ],
+  "howToUse": [
+    "Name the real consequences of doing nothing.",
+    "Use urgent, clear language.",
+    "Don’t exaggerate—just get real.",
+    "Then show how your recommendation avoids those risks."
+  ],
+"promptTemplate": "If we don’t {{recommendation}}, we risk {{supportingList}}. That’s why I recommend {{recommendation}}."
+,
+      balanced: "Frame this message to show both the positive opportunity and the risk of doing nothing. Offer a thoughtful, complete perspective.",
+      attribute: "Reframe this message by emphasizing a key feature or characteristic of the topic. Consider how it could be viewed positively or negatively.",
+      benefit: "Reframe this message by focusing on what the audience gets. Translate features into real-life improvements and tangible results.",
+      settlement: "Frame this message around a safer choice versus a risky option. Highlight the stability of your recommendation.",
+      assembly: "Assemble positive, negative, attribute, and benefit frames into a single powerful message that blends both promise and risk.",
+      inverted: "Start with data, details, and context first, then build to the recommendation. Let the audience reach their own conclusion."
+    };
 
     const systemPrompt = `
 You are a copywriter and senior messaging strategist. Your job is to help professionals turn their brainstormed ideas into clear, persuasive, and structured communication.
