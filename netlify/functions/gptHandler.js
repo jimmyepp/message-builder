@@ -59,11 +59,14 @@ exports.handler = async (event) => {
 
     if (promptTemplate) {
       finalPrompt = promptTemplate
-        .replace("{{doSomething}}", recommendation)
-        .replace("{{consequence1}}", supportingPoints[0] || "")
-        .replace("{{consequence2}}", supportingPoints[1] || "")
-        .replace("{{consequence3}}", supportingPoints[2] || "")
-        .replace("{{recommendation}}", recommendation);
+        .replace(/{{doSomething}}/g, recommendation)
+        .replace(/{{recommendation}}/g, recommendation)
+        .replace(/{{consequence1}}/g, supportingPoints[0] || "")
+        .replace(/{{consequence2}}/g, supportingPoints[1] || "")
+        .replace(/{{consequence3}}/g, supportingPoints[2] || "")
+        .replace(/{{supportingList}}/g, supportingPoints.join(", "));
+}
+
 
       console.log("🧠 Final prompt using frame template:", finalPrompt);
     } else {
