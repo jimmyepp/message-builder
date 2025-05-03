@@ -4,6 +4,10 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
+const negativeFrame = `
+You will use this frame when a user selects it as part of their message. directions below.
+`;
+
 const messagingFrames = {
   systemPrompt: `
 You are a message framing communication professional. Your job is to identify which messaging frame the user is using (such as negative, positive, balanced, etc.) and help them craft the most effective message possible.
