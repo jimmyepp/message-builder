@@ -1,98 +1,77 @@
-const fs = require('fs');
-const path = require('path');
+const { Configuration, OpenAIApi } = require("openai");
 
-exports.handler = async function (event, context) {
-  try {
-    console.log("Incoming event:", event.body);
-    console.log("Using API Key?", !!process.env.OPENAI_API_KEY);
-
-    const { audience, topic, recommendation, supportingPoints, type, frame } = JSON.parse(event.body);
-
-
-    const systemPrompt = `
-You are a copywriter and senior messaging strategist. Your job is to help professionals turn their brainstormed ideas into clear, persuasive, and structured communication.
-
-You work independently, think step-by-step, and ensure the result is focused on the intended audience. Avoid fluff. Do not use jargon at all. Prioritize clarity.
-
-Write succinctly. Short sentences are better. Short paragraphs are better. Do not write long. Use the brainstorm points provided to write compelling copy.
-
-If a tone is provided (e.g., bold, friendly, formal), match your writing style to that tone while keeping the message clear and effective.
-    `;
-
-    let userPrompt = `
-# OBJECTIVE
-Write a ${type} using the structured messaging information below. Focus on creating a message that is clear, relevant, and persuasive to the intended audience.
-
-# CONTEXT
-Audience: ${audience}  
-Topic: ${topic}  
-Recommendation: ${recommendation}
-
-# SUPPORTING POINTS
-${supportingPoints.map((pt) => `- ${pt}`).join('\n')}
-
-# GUIDELINES
-- Focus on the audience’s priorities and needs
-- Emphasize the benefits of the recommendation
-- Keep the structure tight and persuasive
-- Use the selected frame type and its guidance to shape the message
-- Use a tone appropriate for the audience (match if tone is specified)
-`;
-
-    if (frame && messagingFrames[frame]) {
-      console.log("🧩 Injected frame instruction:", messagingFrames[frame]);
-      const frameData = messagingFrames[frame];
-
-      if (typeof frameData === 'string') {
-        userPrompt += `\n\n# FRAME INSTRUCTION\n${frameData}`;
-      } else if (typeof frameData === 'object' && frameData.promptTemplate) {
-        const supportingList = supportingPoints.join(', ');
-        const filledPrompt = frameData.promptTemplate
-          .replace(/{{recommendation}}/g, recommendation)
-          .replace(/{{supportingList}}/g, supportingList);
-
-        userPrompt += `\n\n# FRAME INSTRUCTION\n${filledPrompt}`;
-      }
-    }
-
-    userPrompt += `\n\n# INSTRUCTIONS\nWrite only the ${type} and ${frame}. Do not explain or summarize it. Think before you write. Begin when ready.`;
-
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
-        ],
-        temperature: 0.7
-      })
-    });
+const openai = new OpenAIApi(
+  new Configuration({ apiKey: process.env.OPENAI_API_KEY })
+);
 
 const messagingFrames = {
+  systemPrompt: `
+You are a message framing communication professional. Your job is to identify which messaging frame the user is using (such as negative, positive, balanced, etc.) and help them craft the most effective message possible.
+
+You must always follow the instructions included in the selected frame below, and structure your GPT prompt to reflect those framing principles. Be specific, persuasive, and aligned with the user's intent.
+  `,
   positive: "Reframe this message to focus on hope, benefits, or positive transformation. Emphasize opportunities and desirable outcomes.",
-  negative: NEGATIVE_FRAME,
-  balanced: "Frame this message to show both the positive opportunity and the risk of doing nothing...",
-  // ...etc
+  negative: negativeFrame,
+  balanced: "Frame this message to show both the positive opportunity and the risk of doing nothing."
 };
 
+exports.handler = async function (event, context) {
+  if (event.httpMethod !== "POST") {
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ error: "Method Not Allowed" })
+    };
+  }
 
-    const data = await response.json();
-    console.log("OpenAI response:", JSON.stringify(data));
+  let body;
+  try {
+    body = JSON.parse(event.body);
+    console.log("📥 Incoming event:", body);
+  } catch (err) {
+    console.error("❌ Failed to parse request body:", err);
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: "Invalid JSON in request body" })
+    };
+  }
+
+  const { topic, audience, recommendation, supportingPoints, type, frame } = body;
+
+  const frameInstructions = messagingFrames[frame];
+  const prompt = `
+${messagingFrames.systemPrompt}
+
+Frame: ${frame.toUpperCase()}
+
+Instructions:
+${frameInstructions}
+
+Write a ${type} for this audience.
+
+Topic: ${topic}
+Audience: ${audience}
+Recommendation: ${recommendation}
+Supporting Points:
+- ${supportingPoints.join("\n- ")}
+`;
+
+  try {
+    const completion = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "user", content: prompt }]
+    });
+
+    const result = completion.data.choices[0].message.content;
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ result: data.choices?.[0]?.message?.content || "No response from GPT" })
+      body: JSON.stringify({ result })
     };
-  } catch (error) {
-    console.error("Error in GPT Handler:", error.message);
+  } catch (err) {
+    console.error("🔥 GPT handler error:", err.message);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: error.message })
+      body: JSON.stringify({ error: "Failed to generate message" })
     };
   }
 };
