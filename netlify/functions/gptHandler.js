@@ -9,18 +9,8 @@ exports.handler = async function (event, context) {
     const { audience, topic, recommendation, supportingPoints, type, frame } = JSON.parse(event.body);
 
 
-
-
-const messagingFrames = {
-  positive: "Reframe this message to focus on hope, benefits, or positive transformation. Emphasize opportunities and desirable outcomes.",
-  negative: NEGATIVE_FRAME,
-  balanced: "Frame this message to show both the positive opportunity and the risk of doing nothing...",
-  // ...etc
-};
-
-
     const systemPrompt = `
-You are a copywriter and senior messaging strategist. You are an expert at framing messages. and you are framing messages for users with their inpuYour job is to help professionals turn their brainstormed ideas into clear, persuasive, and structured communication.
+You are a copywriter and senior messaging strategist. Your job is to help professionals turn their brainstormed ideas into clear, persuasive, and structured communication.
 
 You work independently, think step-by-step, and ensure the result is focused on the intended audience. Avoid fluff. Do not use jargon at all. Prioritize clarity.
 
@@ -65,7 +55,7 @@ ${supportingPoints.map((pt) => `- ${pt}`).join('\n')}
       }
     }
 
-    userPrompt += `\n\n# INSTRUCTIONS\nWrite only the ${type}. Do not explain or summarize it. Think before you write. Begin when ready.`;
+    userPrompt += `\n\n# INSTRUCTIONS\nWrite only the ${type} and ${frame}. Do not explain or summarize it. Think before you write. Begin when ready.`;
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -82,6 +72,14 @@ ${supportingPoints.map((pt) => `- ${pt}`).join('\n')}
         temperature: 0.7
       })
     });
+
+const messagingFrames = {
+  positive: "Reframe this message to focus on hope, benefits, or positive transformation. Emphasize opportunities and desirable outcomes.",
+  negative: NEGATIVE_FRAME,
+  balanced: "Frame this message to show both the positive opportunity and the risk of doing nothing...",
+  // ...etc
+};
+
 
     const data = await response.json();
     console.log("OpenAI response:", JSON.stringify(data));
