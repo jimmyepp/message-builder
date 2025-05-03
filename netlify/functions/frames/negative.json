@@ -1,0 +1,18 @@
+{
+  "id": "negative",
+  "label": "Negative Frame",
+  "shortDescription": "Emphasize the consequences of inaction to drive urgency.",
+  "longDescription": "Use this frame when the consequences of inaction matter more than the upside of action...",
+  "whenToUse": [
+    "You need your audience to act quickly.",
+    "You’re trying to stop something from getting worse.",
+    "The status quo is riskier than change."
+  ],
+  "howToUse": [
+    "Name the real consequences of doing nothing.",
+    "Use urgent, clear language.",
+    "Don’t exaggerate—just get real.",
+    "Then show how your recommendation avoids those risks."
+  ],
+"promptTemplate": "If we don’t {{recommendation}}, we risk {{supportingList}}. That’s why I recommend {{recommendation}}."
+}
