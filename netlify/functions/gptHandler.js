@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 exports.handler = async function (event, context) {
   try {
     console.log("Incoming event:", event.body);
@@ -7,7 +10,17 @@ exports.handler = async function (event, context) {
 
     const messagingFrames = {
       positive: "Reframe this message to focus on hope, benefits, or positive transformation. Emphasize opportunities and desirable outcomes.",
-      negative: "Reframe this message to highlight the risks of inaction, urgency, and potential negative consequences.",
+      negative: (() => {
+        try {
+          const filePath = path.join(__dirname, 'frames', 'negative.json');
+          const data = fs.readFileSync(filePath, 'utf-8');
+          const json = JSON.parse(data);
+          return json; // returns object
+        } catch (err) {
+          console.warn("⚠️ Could not load external negative.json, using fallback.");
+          return "Reframe this message to highlight the risks of inaction, urgency, and potential negative consequences.";
+        }
+      })(),
       balanced: "Frame this message to show both the positive opportunity and the risk of doing nothing. Offer a thoughtful, complete perspective.",
       attribute: "Reframe this message by emphasizing a key feature or characteristic of the topic. Consider how it could be viewed positively or negatively.",
       benefit: "Reframe this message by focusing on what the audience gets. Translate features into real-life improvements and tangible results.",
@@ -45,27 +58,21 @@ ${supportingPoints.map((pt) => `- ${pt}`).join('\n')}
 - Use a tone appropriate for the audience (match if tone is specified)
 `;
 
-  if (frame && messagingFrames[frame]) {
-  const frameData = messagingFrames[frame];
+    if (frame && messagingFrames[frame]) {
+      console.log("🧩 Injected frame instruction:", messagingFrames[frame]);
+      const frameData = messagingFrames[frame];
 
-  // If it's a string (old format), just use it
-  if (typeof frameData === 'string') {
-    userPrompt += `\n\n# FRAME INSTRUCTION\n${frameData}`;
-    console.log("🧩 Injected frame instruction (string):", frameData);
-  }
+      if (typeof frameData === 'string') {
+        userPrompt += `\n\n# FRAME INSTRUCTION\n${frameData}`;
+      } else if (typeof frameData === 'object' && frameData.promptTemplate) {
+        const supportingList = supportingPoints.join(', ');
+        const filledPrompt = frameData.promptTemplate
+          .replace(/{{recommendation}}/g, recommendation)
+          .replace(/{{supportingList}}/g, supportingList);
 
-  // If it's an object (new format), use the promptTemplate if available
-  if (typeof frameData === 'object' && frameData.promptTemplate) {
-    const supportingList = supportingPoints.join(', ');
-    const filledPrompt = frameData.promptTemplate
-      .replace(/{{recommendation}}/g, recommendation)
-      .replace(/{{supportingList}}/g, supportingList);
-
-    userPrompt += `\n\n# FRAME INSTRUCTION\n${filledPrompt}`;
-    console.log("🧩 Injected frame instruction (template):", filledPrompt);
-  }
-}
-
+        userPrompt += `\n\n# FRAME INSTRUCTION\n${filledPrompt}`;
+      }
+    }
 
     userPrompt += `\n\n# INSTRUCTIONS\nWrite only the ${type}. Do not explain or summarize it. Think before you write. Begin when ready.`;
 
