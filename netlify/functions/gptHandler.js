@@ -27,6 +27,8 @@ How to use:
 };
 
 exports.handler = async function (event, context) {
+    console.log("✅ Handler is being hit."); // ← Add this here
+
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
@@ -85,6 +87,11 @@ Supporting Points:
     return {
       statusCode: 500,
       body: JSON.stringify({ error: "Failed to generate message" })
+
     };
   }
+return {
+  statusCode: 200,
+  body: JSON.stringify({ result: "This is a test response from the handler." })
+};
 };
