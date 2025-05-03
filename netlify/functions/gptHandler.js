@@ -1,12 +1,10 @@
-const OpenAI = require("openai");
-const fs = require("fs");
-const path = require("path");
+import OpenAI from "openai";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
@@ -20,56 +18,25 @@ exports.handler = async (event) => {
       audience,
       recommendation,
       supportingPoints,
-      type: format,
-      frame: selectedFrame
+      type,
+      frame,
+      frameData
     } = JSON.parse(event.body);
 
-    console.log("📥 Incoming request:", {
-      topic,
-      audience,
-      recommendation,
-      supportingPoints,
-      format,
-      selectedFrame
-    });
-
-    let frameInstructions = "";
-    let promptTemplate = null;
-
-    if (selectedFrame) {
-      try {
-        const framePath = path.join(__dirname, "frames", `${selectedFrame}.json`);
-        console.log("🛠️ Attempting to load frame from:", framePath);
-
-        const frameRaw = fs.readFileSync(framePath, "utf-8");
-        const frameJson = JSON.parse(frameRaw);
-
-        console.log("✅ Frame JSON loaded:", frameJson);
-
-        frameInstructions = `${frameJson.longDescription}\n\nWhen to use:\n- ${frameJson.whenToUse.join("\n- ")}\n\nHow to use:\n- ${frameJson.howToUse.join("\n- ")}`;
-        promptTemplate = frameJson.promptTemplate;
-      } catch (err) {
-        console.error("⚠️ Could not load frame file:", err);
-      }
-    } else {
-      console.log("ℹ️ No frame selected. Using default instructions.");
-    }
-
+    // 🧠 Build the final prompt
     let finalPrompt = "";
 
-    if (promptTemplate) {
-      finalPrompt = promptTemplate
+    if (frame && frameData?.promptTemplate) {
+      // Replace template tokens with real values
+      finalPrompt = frameData.promptTemplate
         .replace("{{doSomething}}", recommendation)
         .replace("{{consequence1}}", supportingPoints[0] || "")
         .replace("{{consequence2}}", supportingPoints[1] || "")
         .replace("{{consequence3}}", supportingPoints[2] || "")
         .replace("{{recommendation}}", recommendation);
-
-      console.log("🧠 Final prompt using frame template:", finalPrompt);
     } else {
-      finalPrompt = `Write a ${format} for the following:\nAudience: ${audience}\nTopic: ${topic}\nRecommendation: ${recommendation}\nSupporting Points:\n- ${supportingPoints.join("\n- ")}`;
-
-      console.log("🧠 Final prompt using fallback format:", finalPrompt);
+      // Default fallback prompt
+      finalPrompt = `Write a ${type} for the following situation:\nAudience: ${audience}\nTopic: ${topic}\nRecommendation: ${recommendation}\nSupporting Points:\n- ${supportingPoints.join("\n- ")}`;
     }
 
     const chatResponse = await openai.chat.completions.create({
@@ -77,7 +44,7 @@ exports.handler = async (event) => {
       messages: [
         {
           role: "system",
-          content: `You are a messaging strategist. Use the following frame:\n\n${frameInstructions}`
+          content: "You are a messaging strategist. Generate clear, persuasive content using the user’s framing."
         },
         {
           role: "user",
