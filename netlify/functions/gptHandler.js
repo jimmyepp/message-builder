@@ -4,7 +4,6 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-
 const messagingFrames = {
   systemPrompt: `
 You are a message framing expert. Your job is to apply the selected messaging frame (like negative or positive) and follow its instructions to create the most effective message.`,
@@ -39,6 +38,7 @@ exports.handler = async function (event, context) {
   try {
     body = JSON.parse(event.body);
   } catch (err) {
+    console.error("❌ Failed to parse request body:", err);
     return {
       statusCode: 400,
       body: JSON.stringify({ error: "Invalid JSON in request body" })
@@ -46,11 +46,13 @@ exports.handler = async function (event, context) {
   }
 
   const { topic, audience, recommendation, supportingPoints, type, frame } = body;
-  const selectedFrame = frame?.toLowerCase();
-  const frameInstructions = messagingFrames[selectedFrame] || "Use a clear, persuasive message structure.";
-  const bulletPoints = Array.isArray(supportingPoints) ? supportingPoints.join("\n- ") : "";
 
-  const prompt = `
+  try {
+    const selectedFrame = frame?.toLowerCase();
+    const frameInstructions = messagingFrames[selectedFrame] || "Use a clear, persuasive message structure.";
+    const bulletPoints = Array.isArray(supportingPoints) ? supportingPoints.join("\n- ") : "";
+
+    const prompt = `
 ${messagingFrames.systemPrompt}
 
 Frame: ${selectedFrame}
@@ -67,19 +69,19 @@ Supporting Points:
 - ${bulletPoints}
 `;
 
-  try {
-    const completion = await openai.createChatCompletion({
+    const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [{ role: "user", content: prompt }]
     });
 
-    const result = completion.data.choices[0].message.content;
+    const result = completion.choices[0].message.content;
 
     return {
       statusCode: 200,
       body: JSON.stringify({ result })
     };
   } catch (err) {
+    console.error("🔥 GPT handler error:", err);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: "Failed to generate message" })
