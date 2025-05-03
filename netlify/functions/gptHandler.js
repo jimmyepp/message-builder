@@ -7,7 +7,7 @@ exports.handler = async function (event, context) {
 
     const messagingFrames = {
       positive: "Reframe this message to focus on hope, benefits, or positive transformation. Emphasize opportunities and desirable outcomes.",
-      negative: "Reframe this message to highlight the risks of inaction, urgency, and potential negative consequences.",
+      negative: "See directions at: https://delicate-faloodeh-35be3b.netlify.app/.netlify/functions/frames/negative.json`,
       balanced: "Frame this message to show both the positive opportunity and the risk of doing nothing. Offer a thoughtful, complete perspective.",
       attribute: "Reframe this message by emphasizing a key feature or characteristic of the topic. Consider how it could be viewed positively or negatively.",
       benefit: "Reframe this message by focusing on what the audience gets. Translate features into real-life improvements and tangible results.",
