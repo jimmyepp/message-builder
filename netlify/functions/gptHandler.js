@@ -45,12 +45,13 @@ ${supportingPoints.map((pt) => `- ${pt}`).join('\n')}
 - Use a tone appropriate for the audience (match if tone is specified)
 `;
 
-   if (frame && messagingFrames[frame]) {
+  if (frame && messagingFrames[frame]) {
   const frameData = messagingFrames[frame];
 
   // If it's a string (old format), just use it
   if (typeof frameData === 'string') {
     userPrompt += `\n\n# FRAME INSTRUCTION\n${frameData}`;
+    console.log("🧩 Injected frame instruction (string):", frameData);
   }
 
   // If it's an object (new format), use the promptTemplate if available
@@ -61,6 +62,7 @@ ${supportingPoints.map((pt) => `- ${pt}`).join('\n')}
       .replace(/{{supportingList}}/g, supportingList);
 
     userPrompt += `\n\n# FRAME INSTRUCTION\n${filledPrompt}`;
+    console.log("🧩 Injected frame instruction (template):", filledPrompt);
   }
 }
 
