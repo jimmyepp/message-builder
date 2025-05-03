@@ -65,7 +65,6 @@ exports.handler = async (event) => {
         .replace("{{consequence3}}", supportingPoints[2] || "")
         .replace("{{recommendation}}", recommendation);
 
-
       console.log("🧠 Final prompt using frame template:", finalPrompt);
     } else {
       finalPrompt = `Write a ${format} for the following:\nAudience: ${audience}\nTopic: ${topic}\nRecommendation: ${recommendation}\nSupporting Points:\n- ${supportingPoints.join("\n- ")}`;
