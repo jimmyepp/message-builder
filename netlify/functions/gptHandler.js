@@ -10,8 +10,17 @@ exports.handler = async function (event, context) {
 
 
 
+
+const messagingFrames = {
+  positive: "Reframe this message to focus on hope, benefits, or positive transformation. Emphasize opportunities and desirable outcomes.",
+  negative: NEGATIVE_FRAME,
+  balanced: "Frame this message to show both the positive opportunity and the risk of doing nothing...",
+  // ...etc
+};
+
+
     const systemPrompt = `
-You are a copywriter and senior messaging strategist. You are an expert at framing messages. and you are framing messages for users with their input. Your job is to help professionals turn their brainstormed ideas into clear, persuasive, and structured communication.
+You are a copywriter and senior messaging strategist. You are an expert at framing messages. and you are framing messages for users with their inpuYour job is to help professionals turn their brainstormed ideas into clear, persuasive, and structured communication.
 
 You work independently, think step-by-step, and ensure the result is focused on the intended audience. Avoid fluff. Do not use jargon at all. Prioritize clarity.
 
@@ -39,13 +48,6 @@ ${supportingPoints.map((pt) => `- ${pt}`).join('\n')}
 - Use the selected frame type and its guidance to shape the message
 - Use a tone appropriate for the audience (match if tone is specified)
 `;
-
-const messagingFrames = {
-  positive: "Reframe this message to focus on hope, benefits, or positive transformation. Emphasize opportunities and desirable outcomes.",
-  negative: NEGATIVE_FRAME,
-  balanced: "Frame this message to show both the positive opportunity and the risk of doing nothing...",
-  // ...etc
-};
 
     if (frame && messagingFrames[frame]) {
       console.log("🧩 Injected frame instruction:", messagingFrames[frame]);
