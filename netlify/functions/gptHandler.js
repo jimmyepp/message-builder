@@ -71,6 +71,10 @@ Supporting Points:
 - ${bulletPoints}
 `;
 
+console.log("🧠 Frame selected:", selectedFrame);
+console.log("📝 Prompt being sent to GPT:\n", prompt);
+
+
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [{ role: "user", content: prompt }]
@@ -90,8 +94,4 @@ Supporting Points:
 
     };
   }
-return {
-  statusCode: 200,
-  body: JSON.stringify({ result: "This is a test response from the handler." })
-};
 };
