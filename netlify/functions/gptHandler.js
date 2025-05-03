@@ -4,6 +4,18 @@ import OpenAI from "openai";
 
 const openai = new OpenAI();
 
+const {
+  topic,
+  audience,
+  recommendation,
+  supportingPoints,
+  type,
+  frame
+} = JSON.parse(event.body);
+
+const format = type;
+const selectedFrame = frame;
+
 export const handler = async (event) => {
   console.log("📥 Incoming request:", event.body);
 
@@ -13,16 +25,6 @@ export const handler = async (event) => {
       body: JSON.stringify({ error: "Method Not Allowed" })
     };
   }
-
-  try {
-    const {
-      topic,
-      audience,
-      recommendation,
-      supportingPoints,
-      type: format,
-      frame: selectedFrame
-    } = JSON.parse(event.body);
 
     // Try to load frame data
     let frame = null;
