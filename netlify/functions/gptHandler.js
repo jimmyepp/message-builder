@@ -1,24 +1,12 @@
-import { readFileSync } from "fs";
-import path from "path";
-import OpenAI from "openai";
+const OpenAI = require("openai");
+const fs = require("fs");
+const path = require("path");
 
-const openai = new OpenAI();
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
 
-const {
-  topic,
-  audience,
-  recommendation,
-  supportingPoints,
-  type,
-  frame
-} = JSON.parse(event.body);
-
-const format = type;
-const selectedFrame = frame;
-
-export const handler = async (event) => {
-  console.log("📥 Incoming request:", event.body);
-
+exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
@@ -26,53 +14,81 @@ export const handler = async (event) => {
     };
   }
 
-    // Try to load frame data
-    let frame = null;
+  try {
+    const {
+      topic,
+      audience,
+      recommendation,
+      supportingPoints,
+      type: format,
+      frame: selectedFrame
+    } = JSON.parse(event.body);
+
+    console.log("📥 Incoming request:", {
+      topic,
+      audience,
+      recommendation,
+      supportingPoints,
+      format,
+      selectedFrame
+    });
+
+    let frameInstructions = "";
+    let promptTemplate = null;
+
     if (selectedFrame) {
       try {
         const framePath = path.join(__dirname, "frames", `${selectedFrame}.json`);
         console.log("🛠️ Attempting to load frame from:", framePath);
-        const frameData = readFileSync(framePath, "utf8");
-        frame = JSON.parse(frameData);
-        console.log("✅ Frame JSON loaded:", frame);
+
+        const frameRaw = fs.readFileSync(framePath, "utf-8");
+        const frameJson = JSON.parse(frameRaw);
+
+        console.log("✅ Frame JSON loaded:", frameJson);
+
+        frameInstructions = `${frameJson.longDescription}\n\nWhen to use:\n- ${frameJson.whenToUse.join("\n- ")}\n\nHow to use:\n- ${frameJson.howToUse.join("\n- ")}`;
+        promptTemplate = frameJson.promptTemplate;
       } catch (err) {
         console.error("⚠️ Could not load frame file:", err);
       }
+    } else {
+      console.log("ℹ️ No frame selected. Using default instructions.");
     }
 
-    // Format supporting points list
-    const supportingList = supportingPoints && supportingPoints.length > 0
-      ? supportingPoints.join(", ")
-      : "serious consequences";
+    let finalPrompt = "";
 
-    // Build initial prompt
-    let prompt = frame?.promptTemplate
-      ? frame.promptTemplate
-          .replace(/{{recommendation}}/g, recommendation)
-          .replace(/{{supportingList}}/g, supportingList)
-      : `Write a ${format} for the following:
-Topic: ${topic}
-Audience: ${audience}
-Recommendation: ${recommendation}
-Supporting Points: ${supportingList}`;
+    if (promptTemplate) {
+      finalPrompt = promptTemplate
+        .replace("{{doSomething}}", recommendation)
+        .replace("{{consequence1}}", supportingPoints[0] || "")
+        .replace("{{consequence2}}", supportingPoints[1] || "")
+        .replace("{{consequence3}}", supportingPoints[2] || "")
+        .replace("{{recommendation}}", recommendation);
 
-    // Format-specific wrapping
-    if (format === "email") {
-      prompt = `Write a professional email with a subject line, greeting, and closing. Use the following content:\n\n${prompt}`;
-    } else if (format === "elevator pitch") {
-      prompt = `Write a concise and persuasive elevator pitch based on this:\n\n${prompt}`;
-    } else if (format === "slide copy") {
-      prompt = `Write slide headlines and bullets for a presentation. Base the content on:\n\n${prompt}`;
+
+      console.log("🧠 Final prompt using frame template:", finalPrompt);
+    } else {
+      finalPrompt = `Write a ${format} for the following:\nAudience: ${audience}\nTopic: ${topic}\nRecommendation: ${recommendation}\nSupporting Points:\n- ${supportingPoints.join("\n- ")}`;
+
+      console.log("🧠 Final prompt using fallback format:", finalPrompt);
     }
 
-    console.log("🧠 Final prompt using frame template:", prompt);
-
-    const completion = await openai.chat.completions.create({
-      messages: [{ role: "user", content: prompt }],
-      model: "gpt-4"
+    const chatResponse = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        {
+          role: "system",
+          content: `You are a messaging strategist. Use the following frame:\n\n${frameInstructions}`
+        },
+        {
+          role: "user",
+          content: finalPrompt
+        }
+      ]
     });
 
-    const result = completion.choices[0].message.content;
+    const result = chatResponse.choices[0].message.content;
+
     return {
       statusCode: 200,
       body: JSON.stringify({ result })
@@ -81,7 +97,7 @@ Supporting Points: ${supportingList}`;
     console.error("🔥 GPT handler error:", err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Internal Server Error" })
+      body: JSON.stringify({ error: "Internal Server Error", details: err.message })
     };
   }
 };
