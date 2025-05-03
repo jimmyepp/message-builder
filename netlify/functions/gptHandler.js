@@ -63,6 +63,7 @@ ${supportingPoints.map((pt) => `- ${pt}`).join('\n')}
 - Focus on the audience’s priorities and needs
 - Emphasize the benefits of the recommendation
 - Keep the structure tight and persuasive
+- Use the selected frame type and its guidance to shape the message
 - Use a tone appropriate for the audience (match if tone is specified)
 `;
 
