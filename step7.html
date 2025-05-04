@@ -137,9 +137,17 @@ const influence = document.getElementById("influenceSelect").value;
       document.getElementById("result").value = result;
 
       // Save to draft
-      if (!draft.generatedMessages) draft.generatedMessages = {};
-      draft.generatedMessages[type] = result;
-      await autoSaveDraft();
+ if (!draft.messages) draft.messages = [];
+
+draft.messages.push({
+  format: type,
+  frame: selectedFrame,
+  influence: influence,
+  generatedMessage: result,
+  timestamp: new Date().toISOString()
+});
+
+await autoSaveDraft();
 
     } catch (err) {
       console.error("GPT generation failed:", err);
