@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div class="centered-content">
   <div class="wrapper">
     <h1>Step 7 of 7</h1>
 
@@ -64,7 +65,7 @@
     <textarea id="result" rows="12" style="width: 100%; font-size: 1rem;"></textarea>
     <button onclick="copyResult()">Copy to Clipboard</button>
   </div>
-
+</div>
   <script type="module">
   import { db } from './firebase.js';
   import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';

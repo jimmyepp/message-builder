@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div class="centered-content">
   <div class="wrapper">
     <h1>Step 4 of 7</h1>
 
@@ -23,7 +24,7 @@
 
     <button onclick="nextStep()">Next</button>
   </div>
-
+</div>
  <script>
   const topic = JSON.parse(localStorage.getItem('messageDraft') || '{}').topic || '[Not set]';
   document.getElementById('topicDisplay').textContent = topic;

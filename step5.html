@@ -1,4 +1,31 @@
-<script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Step 5: Benefits</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="centered-content">
+  <div class="wrapper">
+    <h1>Step 5 of 7</h1>
+
+    <p>This is your recommendation: <strong id="recommendationDisplay">[recommendation]</strong></p>
+    <p>Why is your recommendation beneficial to your audience?<br>
+    Enter one point at a time:</p>
+
+    <form id="benefitForm">
+      <input type="text" id="benefitInput" placeholder="Enter a benefit..." />
+      <button type="submit">Add Point</button>
+    </form>
+
+    <ul id="benefitsList"></ul>
+
+    <button onclick="nextStep()">Next</button>
+  </div>
+</div>
+  <script>
   // Get the draft ID from URL
   const draftId = new URLSearchParams(window.location.search).get("draftId");
   const draftKey = `draft-${draftId}`;
@@ -84,3 +111,7 @@
   // Initial render
   renderBenefits();
 </script>
+
+
+</body>
+</html>
