@@ -68,7 +68,7 @@ How to use:
 - Use this frame when you want to shape perception around a specific detail without making new claims
 
 Example:
-- This tool analyzes content automatically and makes real-time SEO suggestions. That means your team doesn’t have to dig through data — the insights come to you. Consider it your always-on optimization partner.`
+- This tool analyzes content automatically and makes real-time SEO suggestions. That means your team doesn’t have to dig through data — the insights come to you. Consider it your always-on optimization partner.`,
 
 benefit: `
 Use this frame to turn features into outcomes that matter. Focus on how your topic improves life, saves time, solves a problem, or creates a better experience for your audience.
@@ -83,7 +83,7 @@ How to use:
 - Frame your recommendation as a way to unlock that better outcome
 
 Example:
-- This new patient portal update gives you faster access to test results, fewer phone calls, and more control over your care — all from your phone. Consider switching to the app to make your healthcare experience easier and more transparent.`
+- This new patient portal update gives you faster access to test results, fewer phone calls, and more control over your care — all from your phone. Consider switching to the app to make your healthcare experience easier and more transparent.`,
 
 settlement: `
 Use this frame to show that your recommendation is the smarter, safer choice compared to a higher-risk alternative. It helps people feel confident choosing the more certain path over the riskier unknown.
@@ -97,7 +97,7 @@ How to use:
 - Frame your recommendation as the smart, lower-risk option that still leads to a positive outcome
 
 Example:
-- We could wait and hope traffic rebounds, but that’s a gamble. There’s no guarantee it will recover without intervention. Instead, we can act now to update our SEO strategy — a safer, more reliable move that gives us better odds of regaining visibility and driving results.`
+- We could wait and hope traffic rebounds, but that’s a gamble. There’s no guarantee it will recover without intervention. Instead, we can act now to update our SEO strategy — a safer, more reliable move that gives us better odds of regaining visibility and driving results.`,
 
 assembly: `
 Use this frame to blend everything — attributes, benefits, and emotional tone — into a message that feels complete, balanced, and human. This frame brings together both the upsides and the tradeoffs in a single, honest narrative.
@@ -110,7 +110,7 @@ How to use:
 - Frame your recommendation as a real-world decision — not perfect, but worth it
 
 Example:
-- Our automated patient portal gives you faster access to test results and fewer phone calls with your provider. That means more clarity, more control — and yes, fewer excuses to ignore that follow-up appointment. While it makes healthcare easier, it might also mean your doctor can finally hold you accountable — in real time.`
+- Our automated patient portal gives you faster access to test results and fewer phone calls with your provider. That means more clarity, more control — and yes, fewer excuses to ignore that follow-up appointment. While it makes healthcare easier, it might also mean your doctor can finally hold you accountable — in real time.`,
 
 inverted: `
 Use this frame when you want to build your case logically, starting with facts, data, or observations — and ending with your recommendation. This works well when your audience needs to see the reasoning before accepting the conclusion.
@@ -125,6 +125,7 @@ How to use:
 
 Example:
 - I want to talk to you about the drop in search rankings for our CRM Integration page. First, although the page was ranking well, it had almost zero conversions. Second, it performed poorly in ads too, which suggests the content didn’t connect with users. Third, our location-specific pages are still ranking high and converting well. Given these points, I recommend we prioritize local landing pages over general ones moving forward.`
+
 
 
 };
