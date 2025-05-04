@@ -111,20 +111,6 @@ How to use:
 
 Example:
 - Our automated patient portal gives you faster access to test results and fewer phone calls with your provider. That means more clarity, more control — and yes, fewer excuses to ignore that follow-up appointment. While it makes healthcare easier, it might also mean your doctor can finally hold you accountable — in real time.`
-  
-emotional: `
-Use this frame to evoke a strong emotional response that drives attention, connection, and action. This frame taps into what your audience feels deeply — their hopes, fears, values, or sense of belonging.
-
-How to use:
-- Identify the core emotion you want to tap into — hope, fear, pride, frustration, relief, compassion
-- Use vivid, emotionally charged language and imagery to bring the emotion to life
-- Anchor the emotion in something the audience cares about — their people, their values, their future
-- Use this frame when you want your message to be memorable, motivating, or deeply resonant
-- Make sure the emotion fits the topic and tone — aim for impact, not manipulation
-- Frame your recommendation as a way to resolve or amplify that emotional state
-
-Example:
-- Imagine falling asleep knowing your loved one is being cared for by someone who sees them as family. That kind of peace of mind is rare — but it’s exactly what this program was built for. Because care isn’t just clinical — it’s deeply human. And it should feel that way.`
 
 inverted: `
 Use this frame when you want to build your case logically, starting with facts, data, or observations — and ending with your recommendation. This works well when your audience needs to see the reasoning before accepting the conclusion.
