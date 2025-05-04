@@ -1,6 +1,4 @@
-const OpenAI = require("openai");
-const fs = require("fs");
-const path = require("path");
+const { OpenAI } = require("openai");
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -8,26 +6,35 @@ const openai = new OpenAI({
 
 const messagingFrames = {
   systemPrompt: `
-You are a message framing expert. Your job is to apply the selected messaging frame (like negative or positive) and follow its instructions to create the most effective message.`,
+You are a message framing expert. Your job is to apply the selected messaging frames and follow its instructions to create the most effective message.`,
   positive: `
 Reframe this message to focus on hope, benefits, or positive transformation. Emphasize opportunities and desirable outcomes.`,
-  balanced: `
-Frame this message to show both the positive opportunity and the risk of doing nothing.`
+  negative: `
+Use this frame to show the threats, consequences and danger of not following the user's recommendation.
+
+How to use:
+- Name the real threat or danger of doing nothing
+- Show how that threat affects stability, health, growth, or credibility
+- Use urgent, clear language: “we risk...”, “could lose...”, “will face...”
+- Be grounded — don’t exaggerate. Just reveal what’s being overlooked
+- Show how the outcomes might interfere with the audience's self-preservation
+- Use stronger emotional cues — irrelevance, decline, or exposure to risk
+- Connect the danger to the audience’s identity, stability, or long-term viability
+- Show how your recommendation helps avoid or neutralize the threat
+
+`
+
+
+
+
+
+,
+  balanced: "Frame this message to show both the positive opportunity and the risk of doing nothing."
 };
 
-function loadFrameInstructions(frame) {
-  try {
-    const framePath = path.join(__dirname, "frames", `${frame}.json`);
-    const frameData = fs.readFileSync(framePath, "utf-8");
-    const parsed = JSON.parse(frameData);
-    return parsed.longDescription || "";
-  } catch (err) {
-    console.warn(`⚠️ Could not load frame instructions for '${frame}':`, err.message);
-    return "Use a clear, persuasive message structure.";
-  }
-}
-
 exports.handler = async function (event, context) {
+    console.log("✅ Handler is being hit."); // ← Add this here
+
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
@@ -39,6 +46,7 @@ exports.handler = async function (event, context) {
   try {
     body = JSON.parse(event.body);
   } catch (err) {
+    console.error("❌ Failed to parse request body:", err);
     return {
       statusCode: 400,
       body: JSON.stringify({ error: "Invalid JSON in request body" })
@@ -46,16 +54,13 @@ exports.handler = async function (event, context) {
   }
 
   const { topic, audience, recommendation, supportingPoints, type, frame } = body;
-  const selectedFrame = frame?.toLowerCase();
-let frameInstructions = "";
-if (selectedFrame in messagingFrames) {
-  frameInstructions = messagingFrames[selectedFrame];
-} else {
-  frameInstructions = loadFrameInstructions(selectedFrame);
-}
-  const bulletPoints = Array.isArray(supportingPoints) ? supportingPoints.join("\n- ") : "";
 
-  const prompt = `
+  try {
+    const selectedFrame = frame?.toLowerCase();
+    const frameInstructions = messagingFrames[selectedFrame] || "Use a clear, persuasive message structure.";
+    const bulletPoints = Array.isArray(supportingPoints) ? supportingPoints.join("\n- ") : "";
+
+    const prompt = `
 ${messagingFrames.systemPrompt}
 
 Frame: ${selectedFrame}
@@ -72,22 +77,27 @@ Supporting Points:
 - ${bulletPoints}
 `;
 
-  try {
-    const completion = await openai.createChatCompletion({
+console.log("🧠 Frame selected:", selectedFrame);
+console.log("📝 Prompt being sent to GPT:\n", prompt);
+
+
+    const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [{ role: "user", content: prompt }]
     });
 
-    const result = completion.data.choices[0].message.content;
+    const result = completion.choices[0].message.content;
 
     return {
       statusCode: 200,
       body: JSON.stringify({ result })
     };
   } catch (err) {
+    console.error("🔥 GPT handler error:", err);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: "Failed to generate message" })
+
     };
   }
 };
