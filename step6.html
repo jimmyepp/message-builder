@@ -27,15 +27,17 @@
 </div>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const draft = JSON.parse(localStorage.getItem('messageDraft')) || {};
+    const draftId = new URLSearchParams(window.location.search).get("draftId");
+    const draftKey = `draft-${draftId}`;
+    const draft = JSON.parse(localStorage.getItem(draftKey)) || {};
+
     const uniquePoints = draft.uniquePoints || [];
-    const benefitPoints = draft.benefits || [];
+    const benefitPoints = draft.benefitPoints || []; // renamed to match Step 5
     const combinedPoints = [...uniquePoints, ...benefitPoints];
 
     // Debug output
     console.log("Draft loaded in Step 6:", draft);
 
-    // Show topic, audience, recommendation
     document.getElementById('audience').textContent = draft.audience || '[Not set]';
     document.getElementById('topic').textContent = draft.topic || '[Not set]';
     document.getElementById('recommendation').textContent = draft.recommendation || '[Not set]';
@@ -59,14 +61,12 @@
     });
 
     function saveToDraft(updates) {
-      const existing = JSON.parse(localStorage.getItem('messageDraft')) || {};
-      const updated = { ...existing, ...updates };
-      localStorage.setItem('messageDraft', JSON.stringify(updated));
+      const updated = { ...draft, ...updates };
+      localStorage.setItem(draftKey, JSON.stringify(updated));
     }
 
     window.nextStep = function () {
-      const selected = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
-        .map(cb => cb.value);
+      const selected = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
 
       if (selected.length !== 3) {
         alert("Please select exactly 3 supporting points.");
@@ -74,41 +74,40 @@
       }
 
       saveToDraft({ supportingPoints: selected });
-      localStorage.setItem('supportingPoints', JSON.stringify(selected)); // optional redundancy
-      window.location.href = 'step7.html';
+      window.location.href = `step7.html?draftId=${draftId}`;
     }
   });
 </script>
+
 
 <script type="module">
   import { db } from './firebase.js';
   import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
 
-  async function saveDraftToFirestore() {
+  export async function saveDraftToFirestore(draftId, updates) {
     const userId = localStorage.getItem('userId');
-    if (!userId) {
-      console.warn("No user logged in");
-      return;
-    }
+    if (!userId || !draftId) return;
 
-    const draft = JSON.parse(localStorage.getItem('messageDraft') || '{}');
-    if (!draft || Object.keys(draft).length === 0) {
-      console.warn("No draft to save");
-      return;
-    }
+    const draftKey = `draft-${draftId}`;
+    const existingDraft = JSON.parse(localStorage.getItem(draftKey)) || {};
+    const updatedDraft = { ...existingDraft, ...updates };
 
-    const id = Date.now().toString(); // unique ID per draft
-    await setDoc(doc(db, "users", userId, "drafts", id), {
-      ...draft,
-      createdAt: serverTimestamp()
+    // Save to localStorage
+    localStorage.setItem(draftKey, JSON.stringify(updatedDraft));
+
+    // Save to Firestore
+    await setDoc(doc(db, "users", userId, "drafts", draftId), {
+      ...updatedDraft,
+      updatedAt: serverTimestamp()
     });
 
-    console.log("Draft saved to Firestore!");
+    console.log("Draft updated in Firestore with supportingPoints");
   }
 
-  // Optionally call after nextStep() or after sending to GPT:
-  // await saveDraftToFirestore();
+  // Attach to window so regular script block can call it
+  window.saveDraftToFirestore = saveDraftToFirestore;
 </script>
+
 
 
 
