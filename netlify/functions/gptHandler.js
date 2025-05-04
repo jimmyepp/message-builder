@@ -47,7 +47,12 @@ exports.handler = async function (event, context) {
 
   const { topic, audience, recommendation, supportingPoints, type, frame } = body;
   const selectedFrame = frame?.toLowerCase();
-  const frameInstructions = messagingFrames[selectedFrame] || loadFrameInstructions(selectedFrame);
+let frameInstructions = "";
+if (selectedFrame in messagingFrames) {
+  frameInstructions = messagingFrames[selectedFrame];
+} else {
+  frameInstructions = loadFrameInstructions(selectedFrame);
+}
   const bulletPoints = Array.isArray(supportingPoints) ? supportingPoints.join("\n- ") : "";
 
   const prompt = `
