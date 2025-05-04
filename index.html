@@ -16,42 +16,48 @@
     <button onclick="logout()">Logout</button>
   </div>
 
-  <script>
-    function startNewMessage() {
-      // Clear brainstorm/session-specific data
-      localStorage.removeItem('topic');
-      localStorage.removeItem('audience');
-      localStorage.removeItem('recommendation');
-      localStorage.removeItem('uniquePoints');
-      localStorage.removeItem('benefitPoints');
-      localStorage.removeItem('supportingPoints');
+  <script type="module">
+  import { db } from './firebase.js';
+  import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
 
-      // Create new draft project
-      const newDraftId = Date.now().toString();
-      const newDraft = {
-        id: newDraftId,
-        title: '',
-        createdAt: new Date().toISOString(),
-        status: 'incomplete',
-        messages: []
-      };
+  function generateNewDraftId() {
+    return Date.now().toString();
+  }
 
-      // Save under new unique key
-      localStorage.setItem(`draft-${newDraftId}`, JSON.stringify(newDraft));
-
-      // Redirect to Step 1 with that new ID
-      window.location.href = `step1.html?draftId=${newDraftId}`;
-    }
-
-    function logout() {
-      localStorage.removeItem('userId');
+  async function startNewMessage() {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
       window.location.href = 'login.html';
+      return;
     }
 
-    // Redirect to login if not logged in
-    if (!localStorage.getItem('userId')) {
-      window.location.href = 'login.html';
-    }
-  </script>
+    const newDraftId = generateNewDraftId();
+    const newDraft = {
+      id: newDraftId,
+      title: '',
+      createdAt: new Date().toISOString(),
+      status: 'incomplete',
+      messages: []
+    };
+
+    // Save to localStorage
+    localStorage.setItem('messageDraft', JSON.stringify(newDraft));
+    localStorage.setItem(`draft-${newDraftId}`, JSON.stringify(newDraft));
+
+    // Save to Firestore
+    await setDoc(doc(db, "users", userId, "drafts", newDraftId), {
+      ...newDraft,
+      createdAt: serverTimestamp()
+    });
+
+    // Redirect to step1
+    window.location.href = `step1.html?draftId=${newDraftId}`;
+  }
+
+  window.startNewMessage = startNewMessage;
+</script>
+
+
+
 </body>
 </html>

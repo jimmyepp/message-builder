@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>All Messages</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="wrapper">
+    <h1>All Generated Messages</h1>
+    <p>See all messages for this project.</p>
+
+    <table id="messagesTable">
+      <thead>
+        <tr>
+          <th>Frame</th>
+          <th>Influence</th>
+          <th>Format</th>
+          <th>Generated Message</th>
+          <th>Timestamp</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Messages will populate here -->
+      </tbody>
+    </table>
+
+    <a href="step7.html">⬅ Back to Message Builder</a>
+  </div>
+
+  <script type="module">
+    import { db } from './firebase.js';
+    import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
+
+    async function loadMessages() {
+      const userId = localStorage.getItem('userId');
+      const urlParams = new URLSearchParams(window.location.search);
+      const draftId = urlParams.get('draftId');
+
+      if (!userId || !draftId) {
+        alert("Missing user or draft ID");
+        return;
+      }
+
+      const docRef = doc(db, "users", userId, "drafts", draftId);
+      const snapshot = await getDoc(docRef);
+
+      if (!snapshot.exists()) {
+        alert("Draft not found");
+        return;
+      }
+
+      const draft = snapshot.data();
+      const messages = draft.messages || [];
+      const tableBody = document.querySelector("#messagesTable tbody");
+
+      messages.forEach(msg => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${msg.frame || ''}</td>
+          <td>${msg.influence || ''}</td>
+          <td>${msg.format || ''}</td>
+          <td>${msg.generatedMessage.replaceAll("\n", "<br>")}</td>
+          <td>${new Date(msg.timestamp).toLocaleString()}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    loadMessages();
+  </script>
+</body>
+</html>
