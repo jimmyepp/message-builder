@@ -39,9 +39,8 @@ How to use:
 
 Example: 
 - If we don’t act now to expand our SEO strategy, we risk being overtaken by less qualified competitors, losing the visibility that brings us new business, and slowly becoming irrelevant in the markets we serve. That puts our growth — and reputation — at risk. That’s why I recommend broadening our target keyword list immediately.`,
-  
 
-balanced:  `
+  balanced:  `
 Use this frame to show both the benefits of action and the risks of inaction. It helps the audience see both sides — the reward and the cost — and encourages thoughtful, informed decision-making.
 
 How to use:
@@ -56,7 +55,7 @@ How to use:
 Example:
 - By expanding our keyword strategy now, we can increase local traffic and improve visibility in underserved markets. But if we wait, we risk falling behind competitors who are already targeting those terms. Taking action now gives us the best chance to lead — not play catch-up."`,
 
-attribute: `
+  attribute: `
 Use this frame to spotlight a specific feature or characteristic of your topic, and present it in a way that shifts perception — positively, negatively, or both — without changing the underlying fact.
 
 How to use:
@@ -70,7 +69,7 @@ How to use:
 Example:
 - This tool analyzes content automatically and makes real-time SEO suggestions. That means your team doesn’t have to dig through data — the insights come to you. Consider it your always-on optimization partner.`,
 
-benefit: `
+  benefit: `
 Use this frame to turn features into outcomes that matter. Focus on how your topic improves life, saves time, solves a problem, or creates a better experience for your audience.
 
 How to use:
@@ -85,7 +84,7 @@ How to use:
 Example:
 - This new patient portal update gives you faster access to test results, fewer phone calls, and more control over your care — all from your phone. Consider switching to the app to make your healthcare experience easier and more transparent.`,
 
-settlement: `
+  settlement: `
 Use this frame to show that your recommendation is the smarter, safer choice compared to a higher-risk alternative. It helps people feel confident choosing the more certain path over the riskier unknown.
 
 How to use:
@@ -99,7 +98,7 @@ How to use:
 Example:
 - We could wait and hope traffic rebounds, but that’s a gamble. There’s no guarantee it will recover without intervention. Instead, we can act now to update our SEO strategy — a safer, more reliable move that gives us better odds of regaining visibility and driving results.`,
 
-assembly: `
+  assembly: `
 Use this frame to blend everything — attributes, benefits, and emotional tone — into a message that feels complete, balanced, and human. This frame brings together both the upsides and the tradeoffs in a single, honest narrative.
 
 How to use:
@@ -112,7 +111,7 @@ How to use:
 Example:
 - Our automated patient portal gives you faster access to test results and fewer phone calls with your provider. That means more clarity, more control — and yes, fewer excuses to ignore that follow-up appointment. While it makes healthcare easier, it might also mean your doctor can finally hold you accountable — in real time.`,
 
-inverted: `
+  inverted: `
 Use this frame when you want to build your case logically, starting with facts, data, or observations — and ending with your recommendation. This works well when your audience needs to see the reasoning before accepting the conclusion.
 
 How to use:
@@ -125,13 +124,10 @@ How to use:
 
 Example:
 - I want to talk to you about the drop in search rankings for our CRM Integration page. First, although the page was ranking well, it had almost zero conversions. Second, it performed poorly in ads too, which suggests the content didn’t connect with users. Third, our location-specific pages are still ranking high and converting well. Given these points, I recommend we prioritize local landing pages over general ones moving forward.`
-
-
-
 };
 
 exports.handler = async function (event, context) {
-    console.log("✅ Handler is being hit."); // ← Add this here
+  console.log("✅ Handler is being hit.");
 
   if (event.httpMethod !== "POST") {
     return {
@@ -151,12 +147,13 @@ exports.handler = async function (event, context) {
     };
   }
 
-  const { topic, audience, recommendation, supportingPoints, type, frame } = body;
+  const { topic, audience, recommendation, supportingPoints, type, frame, influence } = body;
 
   try {
     const selectedFrame = frame?.toLowerCase();
     const frameInstructions = messagingFrames[selectedFrame] || "Use a clear, persuasive message structure.";
     const bulletPoints = Array.isArray(supportingPoints) ? supportingPoints.join("\n- ") : "";
+    const influenceNote = influence ? `\nAlso apply the selected influence concept: \"${influence}\". Use this concept to enhance the persuasive effect of your message.` : "";
 
     const prompt = `
 ${messagingFrames.systemPrompt}
@@ -165,6 +162,8 @@ Frame: ${selectedFrame}
 
 Instructions:
 ${frameInstructions}
+
+${influenceNote}
 
 Write a ${type} for this audience.
 
@@ -175,9 +174,8 @@ Supporting Points:
 - ${bulletPoints}
 `;
 
-console.log("🧠 Frame selected:", selectedFrame);
-console.log("📝 Prompt being sent to GPT:\n", prompt);
-
+    console.log("🧠 Frame selected:", selectedFrame);
+    console.log("📝 Prompt being sent to GPT:\n", prompt);
 
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
@@ -195,7 +193,6 @@ console.log("📝 Prompt being sent to GPT:\n", prompt);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: "Failed to generate message" })
-
     };
   }
 };
