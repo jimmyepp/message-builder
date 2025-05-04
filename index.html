@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="style.css">  
 </head>
 <body>
+    <div class="centered-content">
   <div class="wrapper">
     <h1>Welcome to the Message Builder</h1>
     <p>This tool will guide you step-by-step to build a clear, structured message. Ready?</p>
@@ -15,7 +16,7 @@
     <a href="my-drafts.html">View Saved Drafts</a>
     <button onclick="logout()">Logout</button>
   </div>
-
+</div>
   <script type="module">
   import { db } from './firebase.js';
   import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
