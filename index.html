@@ -4,69 +4,54 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Start a New Message</title>
-    <meta charset="UTF-8">
-  <title>Step 1</title>
   <link rel="stylesheet" href="style.css">  
 </head>
 <body>
   <div class="wrapper">
-  <h1>Welcome to the Message Builder</h1>
-  <p>This tool will guide you step-by-step to build a clear, structured message. Ready?</p>
+    <h1>Welcome to the Message Builder</h1>
+    <p>This tool will guide you step-by-step to build a clear, structured message. Ready?</p>
 
-<button onclick="startNewMessage()">Start New Message</button>
+    <button onclick="startNewMessage()">Start New Message</button>
+    <a href="my-drafts.html">View Saved Drafts</a>
+    <button onclick="logout()">Logout</button>
+  </div>
 
-<a href="my-drafts.html">View Saved Drafts</a>
+  <script>
+    function startNewMessage() {
+      // Clear brainstorm/session-specific data
+      localStorage.removeItem('topic');
+      localStorage.removeItem('audience');
+      localStorage.removeItem('recommendation');
+      localStorage.removeItem('uniquePoints');
+      localStorage.removeItem('benefitPoints');
+      localStorage.removeItem('supportingPoints');
 
-<button onclick="logout()">Logout</button>
+      // Create new draft project
+      const newDraftId = Date.now().toString();
+      const newDraft = {
+        id: newDraftId,
+        title: '',
+        createdAt: new Date().toISOString(),
+        status: 'incomplete',
+        messages: []
+      };
 
+      // Save under new unique key
+      localStorage.setItem(`draft-${newDraftId}`, JSON.stringify(newDraft));
 
-</div>
+      // Redirect to Step 1 with that new ID
+      window.location.href = `step1.html?draftId=${newDraftId}`;
+    }
 
-<script>
-function startNewMessage() {
-  // Keep login info — just reset the message
-  localStorage.removeItem('messageDraft');
-  localStorage.removeItem('topic');
-  localStorage.removeItem('audience');
-  localStorage.removeItem('recommendation');
-  localStorage.removeItem('uniquePoints');
-  localStorage.removeItem('benefitPoints');
-  localStorage.removeItem('supportingPoints');
-  window.location.href = 'step1.html';
-}
+    function logout() {
+      localStorage.removeItem('userId');
+      window.location.href = 'login.html';
+    }
 
-</script>
-
-<script>
-  if (!localStorage.getItem('userId')) {
-    window.location.href = 'login.html';
-  }
-</script>
-
-<script>
-  function startNewMessage() {
-    const newDraftId = Date.now().toString();
-    const newDraft = {
-      id: newDraftId,
-      title: '',
-      createdAt: new Date().toISOString(),
-      status: 'incomplete',
-      messages: []
-    };
-
-    // Save draft to localStorage
-    localStorage.setItem(`draft-${newDraftId}`, JSON.stringify(newDraft));
-
-    // Redirect to Step 1 with the draft ID in the URL
-    window.location.href = `step1.html?draftId=${newDraftId}`;
-  }
-
-  // Optional: Keep user logged in
-  if (!localStorage.getItem('userId')) {
-    window.location.href = 'login.html';
-  }
-</script>
-
-
+    // Redirect to login if not logged in
+    if (!localStorage.getItem('userId')) {
+      window.location.href = 'login.html';
+    }
+  </script>
 </body>
 </html>
