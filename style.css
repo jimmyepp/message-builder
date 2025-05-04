@@ -1,81 +1,92 @@
-/* Reset some defaults */
+:root {
+  --yellow: #fbcd5e;
+  --blue: #04a6dc;
+  --red: #e5443c;
+  --purple: #9655f1;
+  --navy: #1b263b;
+}
+
+/* GLOBAL RESET */
 * {
   box-sizing: border-box;
-}
-
-body {
-  font-family: system-ui, sans-serif;
   margin: 0;
+  padding: 0;
+}
+
+/* BASE LAYOUT */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #fff;
+  color: var(--navy);
+  line-height: 1.6;
   padding: 2rem;
-  background-color: #f9f9f9;
-  color: #222;
-  display: flex;
-  justify-content: center;
 }
 
-.wrapper {
-  max-width: 700px;
-  width: 100%;
-  padding: 1rem;
-}
-
+/* HEADINGS */
 h1, h2, h3 {
-  color: #333;
-  margin-top: 0;
+  color: var(--navy);
+  margin-bottom: 1rem;
 }
 
-form {
-  margin-top: 1rem;
-  margin-bottom: 2rem;
+.section-header {
+  color: var(--navy);
+  font-weight: bold;
+  margin-top: 2rem;
+  border-bottom: 2px solid var(--yellow);
+  padding-bottom: 0.25rem;
 }
 
+/* INPUTS & TEXTAREAS */
 input[type="text"],
-textarea {
+textarea,
+select {
   width: 100%;
   padding: 0.6rem;
   font-size: 1rem;
   margin-bottom: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  border: 1px solid var(--navy);
+  border-radius: 6px;
+  background-color: #fff;
+  color: var(--navy);
 }
 
+/* BUTTONS */
 button {
-  background-color: #0070f3;
+  background-color: var(--blue);
   color: white;
   border: none;
   padding: 0.6rem 1.2rem;
   font-size: 1rem;
-  border-radius: 4px;
+  font-weight: bold;
+  border-radius: 8px;
   cursor: pointer;
   margin-top: 0.5rem;
   margin-right: 0.5rem;
+  transition: background-color 0.2s ease-in-out;
 }
 
 button:hover {
-  background-color: #005ad3;
+  background-color: var(--navy);
 }
 
-ul {
-  list-style-type: disc;
-  padding-left: 1.5rem;
-  margin-top: 1rem;
+/* CONTAINERS & LAYOUT BLOCKS */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-li {
-  margin-bottom: 0.5rem;
+/* TABS or STEP UI (OPTIONAL STYLING) */
+.tab {
+  padding: 0.75rem;
+  background-color: var(--yellow);
+  border-radius: 6px 6px 0 0;
+  font-weight: bold;
+  display: inline-block;
+  margin-right: 0.5rem;
+  cursor: pointer;
 }
 
-hr {
-  margin: 2rem 0;
-  border: none;
-  border-top: 1px solid #ddd;
-}
-
-#result {
-  white-space: pre-wrap;
-  background-color: #fff;
-  padding: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  margin-top: 2rem;
+.tab.active {
+  background-color: var(--red);
+  color: white;
 }
