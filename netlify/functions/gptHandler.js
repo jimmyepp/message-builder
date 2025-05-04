@@ -6,9 +6,24 @@ const openai = new OpenAI({
 
 const messagingFrames = {
   systemPrompt: `
-You are a message framing expert. Your job is to apply the selected messaging frames and follow its instructions to create the most effective message.`,
+You are a message framing expert. Your job is to apply the selected messaging frames and follow its instructions to create the most effective message for the user.`,
   positive: `
-Reframe this message to focus on hope, benefits, or positive transformation. Emphasize opportunities and desirable outcomes.`,
+Use this frame to show the opportunity, transformation, and gain that comes from following the user's recommendation.
+
+How to use:
+- Highlight the benefit or positive change that’s possible
+- Use clear, optimistic language: “we gain...”, “this allows...”, “you unlock...”
+- Show how the outcome leads to growth, clarity, success, or relief
+- Align the benefit with the audience’s goals, values, or aspirations
+- Appeal to hope, progress, and possibility — not just logic
+- Consider the performative effect — avoid language that could accidentally trigger fear or anxiety
+- Focus on how the message makes the audience feel — it should sound encouraging, empowering, and opportunity-driven
+- Frame your recommendation as the path to something better
+
+Example: 
+- By expanding our SEO strategy, we can capture more local traffic, reach underserved markets, and establish ourselves as the go-to provider in the region. This positions us for long-term growth and deeper community trust. That’s why I recommend broadening our keyword list now to seize that opportunity.`,
+  
+
   negative: `
 Use this frame to show the threats, consequences and danger of not following the user's recommendation.
 
@@ -22,13 +37,12 @@ How to use:
 - Connect the danger to the audience’s identity, stability, or long-term viability
 - Show how your recommendation helps avoid or neutralize the threat
 
-`
+Example: 
+- If we don’t act now to expand our SEO strategy, we risk being overtaken by less qualified competitors, losing the visibility that brings us new business, and slowly becoming irrelevant in the markets we serve. That puts our growth — and reputation — at risk. That’s why I recommend broadening our target keyword list immediately.`,
+  
 
 
 
-
-
-,
   balanced: "Frame this message to show both the positive opportunity and the risk of doing nothing."
 };
 
