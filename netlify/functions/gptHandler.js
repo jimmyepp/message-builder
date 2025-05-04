@@ -153,9 +153,8 @@ exports.handler = async function (event, context) {
     const selectedFrame = frame?.toLowerCase();
     const frameInstructions = messagingFrames[selectedFrame] || "Use a clear, persuasive message structure.";
     const bulletPoints = Array.isArray(supportingPoints) ? supportingPoints.join("\n- ") : "";
-const influenceNote = influence && influenceGuidance[influence]
-  ? `\nInfluence Concept: ${influence}\nInstructions: ${influenceGuidance[influence]}`
-  : "";
+    const influenceNote = influence ? `\nAlso apply the selected influence concept: \"${influence}\". authority Use this concept to reference trusted sources, credentials, or expertise to increase persuasion. contrast Use this concept to show a clear before/after or compare two options to make your recommendation look stronger. socialProof: Use this concept to reference what others are doing or believing to build consensus and trust. scarcity: Use this concept to highlight limited time, availability, or urgency to act quickly. reciprocity: Use this concept to emphasize giving before asking — show how the audience has been helped or given value. consistency: Use this concept to show how the recommendation aligns with the audience’s past actions, values, or beliefs.
+ : "";
 
     const prompt = `
 ${messagingFrames.systemPrompt}
@@ -176,14 +175,6 @@ Supporting Points:
 - ${bulletPoints}
 `;
 
-const influenceGuidance = {
-  authority: `Use this concept to reference trusted sources, credentials, or expertise to increase persuasion.`,
-  contrast: `Use this concept to show a clear before/after or compare two options to make your recommendation look stronger.`,
-  socialProof: `Use this concept to reference what others are doing or believing, to build consensus and trust.`,
-  scarcity: `Use this concept to highlight limited time, availability, or urgency to act quickly.`,
-  reciprocity: `Use this concept to emphasize giving before asking — show how the audience has been helped or given value.`,
-  consistency: `Use this concept to show how the recommendation aligns with the audience’s past actions, values, or beliefs.`
-};
 
     console.log("🧠 Frame selected:", selectedFrame);
     console.log("📝 Prompt being sent to GPT:\n", prompt);
