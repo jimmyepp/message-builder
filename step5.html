@@ -1,42 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Step 5: Benefits</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div class="wrapper">
-    <h1>Step 5 of 7</h1>
+<script>
+  // Get the draft ID from URL
+  const draftId = new URLSearchParams(window.location.search).get("draftId");
+  const draftKey = `draft-${draftId}`;
+  const draft = JSON.parse(localStorage.getItem(draftKey)) || {};
 
-    <p>This is your recommendation: <strong id="recommendationDisplay">[recommendation]</strong></p>
-    <p>Why is your recommendation beneficial to your audience?<br>
-    Enter one point at a time:</p>
-
-    <form id="benefitForm">
-      <input type="text" id="benefitInput" placeholder="Enter a benefit..." />
-      <button type="submit">Add Point</button>
-    </form>
-
-    <ul id="benefitsList"></ul>
-
-    <button onclick="nextStep()">Next</button>
-  </div>
-
-  <script>
-  const recommendation = JSON.parse(localStorage.getItem('messageDraft') || '{}').recommendation || '[Not set]';
+  const recommendation = draft.recommendation || '[Not set]';
   document.getElementById('recommendationDisplay').textContent = recommendation;
 
   const list = document.getElementById('benefitsList');
   const form = document.getElementById('benefitForm');
   const input = document.getElementById('benefitInput');
 
-  let benefits = JSON.parse(localStorage.getItem('benefits')) || [];
+  let benefits = draft.benefitPoints || [];
 
   function saveBenefits() {
-    localStorage.setItem('benefits', JSON.stringify(benefits));
-    saveToDraft({ benefits });
+    draft.benefitPoints = benefits;
+    localStorage.setItem(draftKey, JSON.stringify(draft));
     renderBenefits();
   }
 
@@ -57,7 +36,6 @@
       editBtn.style.border = 'none';
       editBtn.style.cursor = 'pointer';
       editBtn.style.verticalAlign = 'middle';
-
       editBtn.onclick = () => enterEditMode(index, point);
 
       li.appendChild(span);
@@ -100,18 +78,9 @@
       alert("Please add at least one benefit before continuing.");
       return;
     }
-    window.location.href = 'step6.html';
-  }
-
-  function saveToDraft(updates) {
-    const existing = JSON.parse(localStorage.getItem('messageDraft')) || {};
-    const updated = { ...existing, ...updates };
-    localStorage.setItem('messageDraft', JSON.stringify(updated));
+    window.location.href = `step6.html?draftId=${draftId}`;
   }
 
   // Initial render
   renderBenefits();
 </script>
-
-</body>
-</html>
