@@ -70,7 +70,9 @@
   import { db } from './firebase.js';
   import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
 
-  const draft = JSON.parse(localStorage.getItem('messageDraft')) || {};
+  const draftId = new URLSearchParams(window.location.search).get("draftId");
+  const draftKey = `draft-${draftId}`;
+  const draft = JSON.parse(localStorage.getItem(draftKey)) || {};
 
   document.getElementById('audience').textContent = draft.audience || '[No audience set]';
   document.getElementById('topic').textContent = draft.topic || '[No topic set]';
@@ -88,17 +90,16 @@
     const userId = localStorage.getItem('userId');
     if (!userId) return;
 
-    const id = draft.id || Date.now().toString();
-    draft.id = id;
+    draft.id = draftId;
     draft.lastEditedAt = new Date().toISOString();
 
     try {
-      await setDoc(doc(db, "users", userId, "drafts", id), {
+      await setDoc(doc(db, "users", userId, "drafts", draftId), {
         ...draft,
         createdAt: draft.createdAt || serverTimestamp(),
         lastEditedAt: serverTimestamp()
       });
-      localStorage.setItem('messageDraft', JSON.stringify(draft));
+      localStorage.setItem(draftKey, JSON.stringify(draft));
     } catch (err) {
       console.error("Auto-save failed:", err);
     }
@@ -108,8 +109,8 @@
     e.preventDefault();
 
     const type = document.getElementById("formatSelect").value;
-const selectedFrame = document.getElementById("frameSelect").value;
-const influence = document.getElementById("influenceSelect").value;
+    const selectedFrame = document.getElementById("frameSelect").value;
+    const influence = document.getElementById("influenceSelect").value;
 
     if (!type) {
       alert("Please select a format.");
@@ -128,7 +129,7 @@ const influence = document.getElementById("influenceSelect").value;
           recommendation: draft.recommendation,
           supportingPoints: draft.supportingPoints || [],
           type,
-          frame: selectedFrame, // just a string like "negative"
+          frame: selectedFrame,
           influence
         })
       });
@@ -137,18 +138,18 @@ const influence = document.getElementById("influenceSelect").value;
       const result = data.result || "Something went wrong.";
       document.getElementById("result").value = result;
 
-      // Save to draft
- if (!draft.messages) draft.messages = [];
+      // Save the message to this draft
+      if (!draft.messages) draft.messages = [];
 
-draft.messages.push({
-  format: type,
-  frame: selectedFrame,
-  influence: influence,
-  generatedMessage: result,
-  timestamp: new Date().toISOString()
-});
+      draft.messages.push({
+        format: type,
+        frame: selectedFrame,
+        influence,
+        generatedMessage: result,
+        timestamp: new Date().toISOString()
+      });
 
-await autoSaveDraft();
+      await autoSaveDraft();
 
     } catch (err) {
       console.error("GPT generation failed:", err);
@@ -165,6 +166,7 @@ await autoSaveDraft();
 
   window.copyResult = copyResult;
 </script>
+
 
 </body>
 </html>
