@@ -26,93 +26,96 @@
   </div>
 </div>
  <script>
-  const topic = JSON.parse(localStorage.getItem('messageDraft') || '{}').topic || '[Not set]';
-  document.getElementById('topicDisplay').textContent = topic;
-
-  const list = document.getElementById('uniquePointsList');
-  const form = document.getElementById('uniqueForm');
-  const input = document.getElementById('uniqueInput');
-
-  let uniquePoints = JSON.parse(localStorage.getItem('uniquePoints')) || [];
-
-  function savePoints() {
-    localStorage.setItem('uniquePoints', JSON.stringify(uniquePoints));
-    saveToDraft({ uniquePoints });
-    renderPoints();
-  }
-
-  function renderPoints() {
-    list.innerHTML = '';
-    uniquePoints.forEach((point, index) => {
-      const li = document.createElement('li');
-
-      const span = document.createElement('span');
-      span.textContent = point;
-      span.style.marginRight = '10px';
-
-      const editBtn = document.createElement('button');
-      editBtn.textContent = '✏️';
-      editBtn.style.padding = '2px 6px';
-      editBtn.style.fontSize = '1rem';
-      editBtn.style.background = 'transparent';
-      editBtn.style.border = 'none';
-      editBtn.style.cursor = 'pointer';
-      editBtn.style.verticalAlign = 'middle';
-
-      editBtn.onclick = () => enterEditMode(index, point);
-
-      li.appendChild(span);
-      li.appendChild(editBtn);
-      list.appendChild(li);
-    });
-  }
-
-  function enterEditMode(index, oldValue) {
-    const li = list.children[index];
-    li.innerHTML = '';
-
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.value = oldValue;
-    input.style.marginRight = '10px';
-
-    const saveBtn = document.createElement('button');
-    saveBtn.textContent = 'Save';
-    saveBtn.onclick = () => {
-      uniquePoints[index] = input.value.trim();
-      savePoints();
-    };
-
-    li.appendChild(input);
-    li.appendChild(saveBtn);
-  }
-
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    const value = input.value.trim();
-    if (!value) return;
-    uniquePoints.push(value);
-    input.value = '';
-    savePoints();
-  });
-
-  function nextStep() {
-    if (uniquePoints.length < 1) {
-      alert("Please add at least one point before continuing.");
+  document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const draftId = params.get('draftId');
+    if (!draftId) {
+      alert("Draft ID is missing. Please start a new message.");
       return;
     }
-    window.location.href = 'step5.html';
-  }
 
-  function saveToDraft(updates) {
-    const existing = JSON.parse(localStorage.getItem('messageDraft')) || {};
-    const updated = { ...existing, ...updates };
-    localStorage.setItem('messageDraft', JSON.stringify(updated));
-  }
+    const draftKey = `draft-${draftId}`;
+    const draft = JSON.parse(localStorage.getItem(draftKey)) || {};
+    document.getElementById('topicDisplay').textContent = draft.topic || '[Not set]';
 
-  // Initial render
-  renderPoints();
+    const list = document.getElementById('uniquePointsList');
+    const form = document.getElementById('uniqueForm');
+    const input = document.getElementById('uniqueInput');
+    let uniquePoints = draft.uniquePoints || [];
+
+    function savePoints() {
+      draft.uniquePoints = uniquePoints;
+      localStorage.setItem(draftKey, JSON.stringify(draft));
+      localStorage.setItem('messageDraft', JSON.stringify(draft)); // keep in sync
+      renderPoints();
+    }
+
+    function renderPoints() {
+      list.innerHTML = '';
+      uniquePoints.forEach((point, index) => {
+        const li = document.createElement('li');
+
+        const span = document.createElement('span');
+        span.textContent = point;
+        span.style.marginRight = '10px';
+
+        const editBtn = document.createElement('button');
+        editBtn.textContent = '✏️';
+        editBtn.style.padding = '2px 6px';
+        editBtn.style.fontSize = '1rem';
+        editBtn.style.background = 'transparent';
+        editBtn.style.border = 'none';
+        editBtn.style.cursor = 'pointer';
+
+        editBtn.onclick = () => enterEditMode(index, point);
+
+        li.appendChild(span);
+        li.appendChild(editBtn);
+        list.appendChild(li);
+      });
+    }
+
+    function enterEditMode(index, oldValue) {
+      const li = list.children[index];
+      li.innerHTML = '';
+
+      const editInput = document.createElement('input');
+      editInput.type = 'text';
+      editInput.value = oldValue;
+      editInput.style.marginRight = '10px';
+
+      const saveBtn = document.createElement('button');
+      saveBtn.textContent = 'Save';
+      saveBtn.onclick = () => {
+        uniquePoints[index] = editInput.value.trim();
+        savePoints();
+      };
+
+      li.appendChild(editInput);
+      li.appendChild(saveBtn);
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const value = input.value.trim();
+      if (!value) return;
+      uniquePoints.push(value);
+      input.value = '';
+      savePoints();
+    });
+
+    window.nextStep = function () {
+      if (uniquePoints.length < 1) {
+        alert("Please add at least one point before continuing.");
+        return;
+      }
+      window.location.href = `step5.html?draftId=${draftId}`;
+    };
+
+    renderPoints();
+  });
 </script>
+
 
 </body>
 </html>

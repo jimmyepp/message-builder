@@ -26,7 +26,7 @@
   </div>
 </div>
   <script>
-  // Get the draft ID from URL
+  // Get the draft ID from the URL
   const draftId = new URLSearchParams(window.location.search).get("draftId");
   const draftKey = `draft-${draftId}`;
   const draft = JSON.parse(localStorage.getItem(draftKey)) || {};
@@ -38,11 +38,12 @@
   const form = document.getElementById('benefitForm');
   const input = document.getElementById('benefitInput');
 
-  let benefits = draft.benefitPoints || [];
+  let benefits = draft.benefits || [];
 
   function saveBenefits() {
-    draft.benefitPoints = benefits;
+    draft.benefits = benefits;
     localStorage.setItem(draftKey, JSON.stringify(draft));
+    localStorage.setItem('messageDraft', JSON.stringify(draft)); // keep in sync
     renderBenefits();
   }
 
@@ -75,19 +76,19 @@
     const li = list.children[index];
     li.innerHTML = '';
 
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.value = oldValue;
-    input.style.marginRight = '10px';
+    const editInput = document.createElement('input');
+    editInput.type = 'text';
+    editInput.value = oldValue;
+    editInput.style.marginRight = '10px';
 
     const saveBtn = document.createElement('button');
     saveBtn.textContent = 'Save';
     saveBtn.onclick = () => {
-      benefits[index] = input.value.trim();
+      benefits[index] = editInput.value.trim();
       saveBenefits();
     };
 
-    li.appendChild(input);
+    li.appendChild(editInput);
     li.appendChild(saveBtn);
   }
 
@@ -111,6 +112,7 @@
   // Initial render
   renderBenefits();
 </script>
+
 
 
 </body>
