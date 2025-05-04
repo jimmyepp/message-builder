@@ -59,7 +59,7 @@
     </form>
 
 
-    
+
 
     <h3>Generated Result:</h3>
     <textarea id="result" rows="12" style="width: 100%; font-size: 1rem;"></textarea>
@@ -108,7 +108,8 @@
     e.preventDefault();
 
     const type = document.getElementById("formatSelect").value;
-    const selectedFrame = document.getElementById("frameSelect").value;
+const selectedFrame = document.getElementById("frameSelect").value;
+const influence = document.getElementById("influenceSelect").value;
 
     if (!type) {
       alert("Please select a format.");
@@ -127,7 +128,8 @@
           recommendation: draft.recommendation,
           supportingPoints: draft.supportingPoints || [],
           type,
-          frame: selectedFrame // just a string like "negative"
+          frame: selectedFrame, // just a string like "negative"
+          influence
         })
       });
 
