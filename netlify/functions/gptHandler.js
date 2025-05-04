@@ -125,13 +125,53 @@ How to use:
 Example:
 - I want to talk to you about the drop in search rankings for our CRM Integration page. First, although the page was ranking well, it had almost zero conversions. Second, it performed poorly in ads too, which suggests the content didn’t connect with users. Third, our location-specific pages are still ranking high and converting well. Given these points, I recommend we prioritize local landing pages over general ones moving forward.`
 };
+
 const influenceGuidance = {
-  authority: "Use this concept to reference trusted sources, credentials, or expertise to increase persuasion.",
-  contrast: "Use this concept to show a clear before/after or compare two options to make your recommendation look stronger.",
-  socialProof: "Use this concept to reference what others are doing or believing to build consensus and trust.",
-  scarcity: "Use this concept to highlight limited time, availability, or urgency to act quickly.",
-  reciprocity: "Use this concept to emphasize giving before asking — show how the audience has been helped or given value.",
-  consistency: "Use this concept to show how the recommendation aligns with the audience’s past actions, values, or beliefs."
+  commonGround: `
+Use this principle to build trust by showing how your recommendation aligns with shared experiences, beliefs, or values.
+How to use:
+- Reference mutual goals, cultural norms, or points of agreement
+- Use inclusive language: “we all want…”, “like you, I believe…”
+- Show that you understand where your audience is coming from
+Example: “Just like you, we believe patients deserve answers fast — that’s why this change puts test results directly in their hands.”`,
+
+  consistency: `
+Use this principle to align your message with your audience’s past beliefs or commitments.
+How to use:
+- Reference something they’ve said, prioritized, or acted on before
+- Show how your recommendation reinforces their values or direction
+Example: “You’ve said speed-to-market matters — this solution supports that priority.”`,
+
+  contrast: `
+Use this principle when you want your idea to stand out by comparison.
+How to use:
+- Show the difference between taking action vs. doing nothing
+- Compare your recommendation to an outdated or less effective option
+- Highlight changes in results, speed, or simplicity
+Example: “Unlike our current process, this approach cuts response time in half.”`,
+
+  emotional: `
+- Identify the core emotion you want to tap into — hope, fear, pride, frustration, relief, compassion
+- Use vivid, emotionally charged language and imagery to bring the emotion to life
+- Anchor the emotion in something the audience cares about — their people, their values, their future
+- Use this frame when you want your message to be memorable, motivating, or deeply resonant
+- Make sure the emotion fits the topic and tone — aim for impact, not manipulation
+- Frame your recommendation as a way to resolve or amplify that emotional state
+Example: "Imagine falling asleep knowing your loved one is being cared for by someone who sees them as family. That kind of peace of mind is rare — but it’s exactly what this program was built for. Because care isn’t just clinical — it’s deeply human. And it should feel that way."`,
+
+  novelty: `
+Use this principle to spark interest by introducing something new, surprising, or different.
+How to use:
+- Emphasize a shift in strategy, a new feature, or a breakthrough idea
+- Highlight what makes it different from what’s been tried before
+Example: “This is a completely new way of approaching local SEO — and no one in our region is doing it yet.”`,
+
+  scarcity: `
+Use this principle to create urgency by showing what could be lost by waiting.
+How to use:
+- Emphasize a closing window, limited availability, or cost of delay
+- Only use this when the urgency is real and meaningful
+Example: “If we don’t act this month, we lose the early renewal discount.”`
 };
 
 
