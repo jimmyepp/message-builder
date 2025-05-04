@@ -21,21 +21,31 @@
 </div>
 </div>
   <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const draftId = urlParams.get('draftId');
+
+    if (!draftId) {
+      alert("Missing draft ID. Please start a new message.");
+      window.location.href = 'index.html';
+      return;
+    }
+
     const form = document.getElementById('step2Form');
     const input = document.getElementById('audienceInput');
 
-    form.addEventListener('submit', function(e) {
+    form.addEventListener('submit', function (e) {
       e.preventDefault();
-      saveToDraft({ audience: input.value.trim() });
-      window.location.href = 'step3.html'; // Go to Step 3
+      const draft = JSON.parse(localStorage.getItem(`draft-${draftId}`)) || {};
+      draft.audience = input.value.trim();
+      draft.id = draftId;
+      localStorage.setItem(`draft-${draftId}`, JSON.stringify(draft));
+      localStorage.setItem('messageDraft', JSON.stringify(draft));
+      window.location.href = `step3.html?draftId=${draftId}`;
     });
+  });
+</script>
 
-    function saveToDraft(updates) {
-      const existing = JSON.parse(localStorage.getItem('messageDraft')) || {};
-      const updated = { ...existing, ...updates };
-      localStorage.setItem('messageDraft', JSON.stringify(updated));
-    }
-  </script>
 
 </body>
 </html>

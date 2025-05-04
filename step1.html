@@ -26,34 +26,46 @@
 </div>
 
 <script>
-function logout() {
-  localStorage.removeItem('userId');
-  localStorage.removeItem('userEmail');
-  window.location.href = 'login.html';
-}
-</script>
-
-
-</script>
-<script>
   document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('step1Form');
     const input = document.getElementById('topicInput');
 
+    // ✅ Grab draftId from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const draftId = urlParams.get('draftId');
+
+    if (!draftId) {
+      alert('Missing draftId. Please start a new message.');
+      window.location.href = 'index.html';
+      return;
+    }
+
+    // Load the correct draft
+    let draft = JSON.parse(localStorage.getItem(`draft-${draftId}`)) || {
+      id: draftId,
+      title: '',
+      createdAt: new Date().toISOString(),
+      status: 'incomplete',
+      messages: []
+    };
+
+    // Pre-fill if topic already exists
+    if (draft.topic) {
+      input.value = draft.topic;
+    }
+
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-      saveToDraft({ topic: input.value.trim() });
-      window.location.href = 'step2.html';
-    });
+      draft.topic = input.value.trim();
 
-    function saveToDraft(updates) {
-      const existing = JSON.parse(localStorage.getItem('messageDraft')) || {};
-      const updated = { ...existing, ...updates };
-      localStorage.setItem('messageDraft', JSON.stringify(updated));
-    }
+      // ✅ Save both to localStorage
+      localStorage.setItem(`draft-${draftId}`, JSON.stringify(draft));
+      localStorage.setItem('messageDraft', JSON.stringify(draft));
+
+      window.location.href = `step2.html?draftId=${draftId}`;
+    });
   });
 </script>
-
 
 
 </body>

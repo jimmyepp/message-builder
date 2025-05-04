@@ -24,29 +24,36 @@
 </div>
  <script>
   document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const draftId = urlParams.get('draftId');
+
+    if (!draftId) {
+      alert("Missing draft ID. Please start a new message.");
+      window.location.href = 'index.html';
+      return;
+    }
+
     const form = document.getElementById('step3Form');
     const titleInput = document.getElementById('titleInput');
     const recommendationInput = document.getElementById('recommendationInput');
 
+    const draft = JSON.parse(localStorage.getItem(`draft-${draftId}`)) || {};
+
     // Autofill title with topic if available and no title exists
-    const draft = JSON.parse(localStorage.getItem('messageDraft')) || {};
     if (draft.topic && !draft.title) {
       titleInput.value = draft.topic;
     }
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-      const title = titleInput.value.trim();
-      const recommendation = recommendationInput.value.trim();
-      saveToDraft({ title, recommendation });
-      window.location.href = 'step4.html';
-    });
+      draft.title = titleInput.value.trim();
+      draft.recommendation = recommendationInput.value.trim();
+      draft.id = draftId;
 
-    function saveToDraft(updates) {
-      const existing = JSON.parse(localStorage.getItem('messageDraft')) || {};
-      const updated = { ...existing, ...updates };
-      localStorage.setItem('messageDraft', JSON.stringify(updated));
-    }
+      localStorage.setItem(`draft-${draftId}`, JSON.stringify(draft));
+      localStorage.setItem('messageDraft', JSON.stringify(draft));
+      window.location.href = `step4.html?draftId=${draftId}`;
+    });
   });
 </script>
 
