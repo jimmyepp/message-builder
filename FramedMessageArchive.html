@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Framed Message Archive</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="wrapper">
+    <h1>Framed Message Archive</h1>
+    <div id="messageList"></div>
+    <button onclick="goBack()">Back to Drafts</button>
+  </div>
+
+  <script type="module">
+    import { db } from './firebase.js';
+    import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
+
+    const draftId = new URLSearchParams(window.location.search).get("draftId");
+    const userId = localStorage.getItem('userId');
+
+    async function loadMessages() {
+      if (!userId || !draftId) {
+        document.getElementById("messageList").textContent = "Missing user or draft ID.";
+        return;
+      }
+
+      const draftRef = doc(db, "users", userId, "drafts", draftId);
+      const snap = await getDoc(draftRef);
+      if (!snap.exists()) {
+        document.getElementById("messageList").textContent = "Draft not found.";
+        return;
+      }
+
+      const draft = snap.data();
+      const messages = draft.messages || [];
+      if (messages.length === 0) {
+        document.getElementById("messageList").textContent = "No messages have been generated yet.";
+        return;
+      }
+
+      const listDiv = document.getElementById("messageList");
+      messages.forEach(msg => {
+        const container = document.createElement('div');
+        container.style.border = "1px solid #ccc";
+        container.style.padding = "1rem";
+        container.style.marginBottom = "1rem";
+        container.style.background = "#f9f9f9";
+
+        container.innerHTML = `
+          <strong>Format:</strong> ${msg.format} <br>
+          <strong>Frame:</strong> ${msg.frame} <br>
+          <strong>Influence:</strong> ${msg.influence} <br>
+          <strong>Generated:</strong> ${new Date(msg.timestamp).toLocaleString()} <br><br>
+          <textarea rows="10" style="width: 100%">${msg.generatedMessage}</textarea>
+        `;
+
+        listDiv.appendChild(container);
+      });
+    }
+
+    function goBack() {
+      window.location.href = 'my-drafts.html';
+    }
+
+    loadMessages();
+  </script>
+</body>
+</html>
