@@ -17,7 +17,7 @@ Frame this message to show both the positive opportunity and the risk of doing n
 
 function loadFrameInstructions(frame) {
   try {
-    const framePath = path.join(__dirname, `${frame}.json`);
+    const framePath = path.join(__dirname, "frames", `${frame}.json`);
     const frameData = fs.readFileSync(framePath, "utf-8");
     const parsed = JSON.parse(frameData);
     return parsed.longDescription || "";
