@@ -44,9 +44,22 @@
         <option value="assembly">Assembly Frame</option>
         <option value="inverted">Inverted Frame</option>
       </select>
-
+<label for="influenceSelect" style="margin-top: 1rem;">Optional: Apply an Influence Concept</label>
+<select id="influenceSelect">
+  <option value="">-- None --</option>
+  <option value="authority">Authority</option>
+  <option value="contrast">Contrast</option>
+  <option value="social-proof">Social Proof</option>
+  <option value="scarcity">Scarcity</option>
+  <option value="reciprocity">Reciprocity</option>
+  <option value="liking">Liking</option>
+  <option value="commitment">Commitment & Consistency</option>
+</select>
       <button type="submit">Generate Message</button>
     </form>
+
+
+    
 
     <h3>Generated Result:</h3>
     <textarea id="result" rows="12" style="width: 100%; font-size: 1rem;"></textarea>
