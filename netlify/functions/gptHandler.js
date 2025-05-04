@@ -41,9 +41,106 @@ Example:
 - If we don’t act now to expand our SEO strategy, we risk being overtaken by less qualified competitors, losing the visibility that brings us new business, and slowly becoming irrelevant in the markets we serve. That puts our growth — and reputation — at risk. That’s why I recommend broadening our target keyword list immediately.`,
   
 
+balanced:  `
+Use this frame to show both the benefits of action and the risks of inaction. It helps the audience see both sides — the reward and the cost — and encourages thoughtful, informed decision-making.
+
+How to use:
+- Start with the opportunity or benefit that comes from action
+- Then clearly state the risk or consequence of not acting
+- Use measured, grounded language — avoid fearmongering or overhype
+- Emphasize contrast: growth vs. stagnation, gain vs. loss, clarity vs. confusion
+- Use this frame when your audience is skeptical, cautious, or analytical
+- Create a balanced emotional tone — hopeful but realistic
+- Frame your recommendation as the smart way to move forward and avoid regret
+
+Example:
+- By expanding our keyword strategy now, we can increase local traffic and improve visibility in underserved markets. But if we wait, we risk falling behind competitors who are already targeting those terms. Taking action now gives us the best chance to lead — not play catch-up."`,
+
+attribute: `
+Use this frame to spotlight a specific feature or characteristic of your topic, and present it in a way that shifts perception — positively, negatively, or both — without changing the underlying fact.
+
+How to use:
+- Identify a key feature, attribute, or detail about your topic
+- Choose whether to frame it as a strength, a drawback, or both
+- Keep the factual content the same — only the framing should shift
+- Use language that guides how the audience perceives the attribute: “95% lean” vs. “5% fat”
+- Focus on what the attribute means to your audience — what it enables or limits
+- Use this frame when you want to shape perception around a specific detail without making new claims
+
+Example:
+- This tool analyzes content automatically and makes real-time SEO suggestions. That means your team doesn’t have to dig through data — the insights come to you. Consider it your always-on optimization partner.`
+
+benefit: `
+Use this frame to turn features into outcomes that matter. Focus on how your topic improves life, saves time, solves a problem, or creates a better experience for your audience.
+
+How to use:
+- Identify the key feature or action you're recommending
+- Translate that feature into a real benefit — something the audience gains or enjoys
+- Use clear, emotional language: “you save time…”, “you get peace of mind…”, “this means less stress…”
+- Make the benefit tangible and relatable — how does it improve daily life?
+- Watch out for negative benefits that may create anxiety instead of reassurance
+- When helpful, use humor or contrast to turn a downside into a surprising benefit
+- Frame your recommendation as a way to unlock that better outcome
+
+Example:
+- This new patient portal update gives you faster access to test results, fewer phone calls, and more control over your care — all from your phone. Consider switching to the app to make your healthcare experience easier and more transparent.`
+
+settlement: `
+Use this frame to show that your recommendation is the smarter, safer choice compared to a higher-risk alternative. It helps people feel confident choosing the more certain path over the riskier unknown.
+
+How to use:
+- Present two paths: one known/safe (your recommendation), and one risky/uncertain (status quo or alternative)
+- Emphasize the risks, costs, or unpredictability of the riskier path
+- Use the audience's natural bias toward certainty and stability
+- Use language like: “there’s a safer way…”, “a smarter choice would be…”, “the risk just isn’t worth it”
+- When possible, include probability, impact, or emotional cost of the risky path
+- Frame your recommendation as the smart, lower-risk option that still leads to a positive outcome
+
+Example:
+- We could wait and hope traffic rebounds, but that’s a gamble. There’s no guarantee it will recover without intervention. Instead, we can act now to update our SEO strategy — a safer, more reliable move that gives us better odds of regaining visibility and driving results.`
+
+assembly: `
+Use this frame to blend everything — attributes, benefits, and emotional tone — into a message that feels complete, balanced, and human. This frame brings together both the upsides and the tradeoffs in a single, honest narrative.
+
+How to use:
+- Identify the key features, benefits, and emotional angles of your topic
+- Include both positive and negative elements to create contrast and authenticity
+- Consider the performative impact — how the tone might emotionally land
+- Use humor or self-awareness when helpful (especially with negative benefits or downsides)
+- Frame your recommendation as a real-world decision — not perfect, but worth it
+
+Example:
+- Our automated patient portal gives you faster access to test results and fewer phone calls with your provider. That means more clarity, more control — and yes, fewer excuses to ignore that follow-up appointment. While it makes healthcare easier, it might also mean your doctor can finally hold you accountable — in real time.`
+  
+emotional: `
+Use this frame to evoke a strong emotional response that drives attention, connection, and action. This frame taps into what your audience feels deeply — their hopes, fears, values, or sense of belonging.
+
+How to use:
+- Identify the core emotion you want to tap into — hope, fear, pride, frustration, relief, compassion
+- Use vivid, emotionally charged language and imagery to bring the emotion to life
+- Anchor the emotion in something the audience cares about — their people, their values, their future
+- Use this frame when you want your message to be memorable, motivating, or deeply resonant
+- Make sure the emotion fits the topic and tone — aim for impact, not manipulation
+- Frame your recommendation as a way to resolve or amplify that emotional state
+
+Example:
+- Imagine falling asleep knowing your loved one is being cared for by someone who sees them as family. That kind of peace of mind is rare — but it’s exactly what this program was built for. Because care isn’t just clinical — it’s deeply human. And it should feel that way.`
+
+inverted: `
+Use this frame when you want to build your case logically, starting with facts, data, or observations — and ending with your recommendation. This works well when your audience needs to see the reasoning before accepting the conclusion.
+
+How to use:
+- Start with the topic or issue you're addressing
+- Walk through 2–3 key data points, observations, or findings
+- Let the evidence lead naturally to your conclusion
+- State your recommendation at the end — once the audience is primed
+- Use this frame for transparency, post-mortems, or technical audiences
+- Avoid this frame when your audience has short attention spans or wants a clear ask up front
+
+Example:
+- I want to talk to you about the drop in search rankings for our CRM Integration page. First, although the page was ranking well, it had almost zero conversions. Second, it performed poorly in ads too, which suggests the content didn’t connect with users. Third, our location-specific pages are still ranking high and converting well. Given these points, I recommend we prioritize local landing pages over general ones moving forward.`
 
 
-  balanced: "Frame this message to show both the positive opportunity and the risk of doing nothing."
 };
 
 exports.handler = async function (event, context) {
