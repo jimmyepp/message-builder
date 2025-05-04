@@ -43,21 +43,30 @@ function startNewMessage() {
   }
 </script>
 
-  <script>
+<script>
+  function startNewMessage() {
+    const newDraftId = Date.now().toString();
+    const newDraft = {
+      id: newDraftId,
+      title: '',
+      createdAt: new Date().toISOString(),
+      status: 'incomplete',
+      messages: []
+    };
 
-function startNewMessage() {
-    localStorage.clear();
-    window.location.href = 'step1.html';
+    // Save draft to localStorage
+    localStorage.setItem(`draft-${newDraftId}`, JSON.stringify(newDraft));
+
+    // Redirect to Step 1 with the draft ID in the URL
+    window.location.href = `step1.html?draftId=${newDraftId}`;
   }
 
-  function saveToDraft(updates) {
-  const existing = JSON.parse(localStorage.getItem('messageDraft')) || {};
-  const updated = { ...existing, ...updates };
-  localStorage.setItem('messageDraft', JSON.stringify(updated));
-}
+  // Optional: Keep user logged in
+  if (!localStorage.getItem('userId')) {
+    window.location.href = 'login.html';
+  }
+</script>
 
-
-  </script>
 
 </body>
 </html>
