@@ -1,0 +1,44 @@
+negative frame
+
+{
+  "id": "negative",
+  "label": "Negative Frame",
+  "shortDescription": "Emphasize the consequences of inaction to drive urgency.",
+  "longDescription": "Use this frame to show the consequences of inaction. Humans are wired to respond more strongly to risks than rewards. Negative frames work by showing what could go wrong if the recommendation is not followed—or if we make the wrong move. That doesn’t mean being manipulative or alarmist. It just means shining a light on the costs, dangers, or pressures that might be overlooked with inaction.",
+  "The way humans use this frame": [
+    "You need your audience to act quickly.",
+    "You’re trying to stop something from getting worse.",
+    "The status quo is riskier than change."
+  ],
+  "howToUse": [
+“You will take the user’s topic, audience recommendation and supporting points and transform them if needed into negative frame responses.”     
+"Name the real consequences of doing nothing.",
+    "Use urgent, clear language.",
+    "Don’t exaggerate—just get real.",
+    "Show how your recommendation avoids those risks."
+  ],
+  "prompt response example (your are free to use your own variation)”: "If we don’t {{follow recommendation}}, we risk {{Negative frame1}}, {{negative frame 2}}, and {{negative frame 3}}. That’s why I recommend {{recommendation}}.",
+  "example1": {
+    "audience": "Leadership and the SEO company",
+    "topic": "Limitations of ranking for only general local search terms",
+    "recommendation": "Target a broader range of local keywords",
+    "Supporting points from brainstorm to show negatively in write up": [
+      "We can gain visibility locally",
+      "We can beat our competitors",
+      “Gain business opportunities"
+    ],
+  "message": "Dear Team,\n\nOur current SEO focus on just a few general local terms is limiting our reach. If we don’t expand our strategy, we risk falling behind smaller, less qualified competitors who are targeting a wider range of location-specific keywords.\n\nThis narrow approach could result in declining web traffic, reduced visibility, and missed business opportunities. To stay ahead, we need to revise our keyword strategy and prioritize more unbranded, location-based terms immediately.\n\nLet’s not wait until we lose ground."
+}
+
+
+"example2": {
+    "audience": "my bosses",
+    "topic": "AI Agents",
+    "recommendation": "use AI Agents for SEO Optimization",
+    "Supporting points from brainstorm to show negatively in write up": [
+      "Supporting Points:
+”these things can do the work of an entire team in minutes.”
+”We can send data from Google Analyics to our agent and it can compare treaffic from the last three weeks. it can then identify the pages who had a large decline in traffic.”
+”we can send that URL to SEMRush and Screaming Frog to check on page and technical SEO, and the Agent can return real insights and action items for us. it can even suggest a new content block or meta description”],
+  "message": "Dear Team,\n\nOur current SEO focus on just a few general local terms is limiting our reach. If we don’t expand our strategy, we risk falling behind smaller, less qualified competitors who are targeting a wider range of location-specific keywords.\n\nThis narrow approach could result in declining web traffic, reduced visibility, and missed business opportunities. To stay ahead, we need to revise our keyword strategy and prioritize more unbranded, location-based terms immediately.\n\nLet’s not wait until we lose ground."
+}
