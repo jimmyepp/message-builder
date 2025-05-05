@@ -298,3 +298,46 @@ button:hover {
   color: var(--navy);
 }
 
+
+.checkbox-list {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 2rem;
+  text-align: left;
+  max-width: 500px;
+  margin: 0 auto 2rem;
+}
+
+.checkbox-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+  font-size: 1rem;
+  color: var(--navy);
+}
+
+.checkbox-list input[type="checkbox"] {
+  margin-top: 4px;
+}
+
+.checkbox-list label {
+  flex: 1;
+  cursor: pointer;
+}
+
+[contenteditable="true"] {
+  padding: 0.1rem 0.3rem;
+  border: 1px dashed transparent;
+  border-radius: 4px;
+  transition: border 0.2s ease;
+}
+
+[contenteditable="true"]:hover,
+[contenteditable="true"]:focus {
+  border: 1px dashed var(--blue);
+  outline: none;
+  background-color: #f9f9f9;
+}
+

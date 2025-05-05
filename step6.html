@@ -21,16 +21,19 @@
   <div class="wrapper">
   <h1>Step 6 of 7</h1>
 
-  <h2>Your Message So Far</h2>
-  <p><strong>Audience:</strong> <span id="audience"></span></p>
-  <p><strong>Topic:</strong> <span id="topic"></span></p>
-  <p><strong>Recommendation:</strong> <span id="recommendation"></span></p>
+  <h1>Step 6 of 7</h1>
 
-  <h3>Select the 3 strongest points that support your recommendation:</h3>
+<h2>Your Message So Far</h2>
+<p><strong>Audience:</strong> <span id="audience" contenteditable="true"></span></p>
+<p><strong>Topic:</strong> <span id="topic" contenteditable="true"></span></p>
+<p><strong>Recommendation:</strong> <span id="recommendation" contenteditable="true"></span></p>
 
-<form id="step6Form" onsubmit="event.preventDefault(); nextStep();">    <ul id="supportingPointsList"></ul>
-    <button class="start-button" type="submit">Next</button>
-  </form>
+<h3>Select the 3 strongest points that support your recommendation:</h3>
+
+<form id="step6Form" onsubmit="event.preventDefault(); nextStep();">
+  <ul id="supportingPointsList" class="checkbox-list"></ul>
+  <button class="start-button" type="submit">Next</button>
+</form>
 </div>
 </div>
 <script type="module">
@@ -87,19 +90,31 @@
   }
 
   window.nextStep = async function () {
-    const selected = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+  const selected = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
 
-    if (selected.length !== 3) {
-      alert("Please select exactly 3 supporting points.");
-      return;
-    }
+  if (selected.length !== 3) {
+    alert("Please select exactly 3 supporting points.");
+    return;
+  }
 
-    const updates = { supportingPoints: selected };
-    localStorage.setItem(draftKey, JSON.stringify({ ...draft, ...updates }));
-    await saveDraftToFirestore(draftId, updates);
+  // Get updated message fields
+  const updatedAudience = document.getElementById('audience').innerText.trim();
+  const updatedTopic = document.getElementById('topic').innerText.trim();
+  const updatedRecommendation = document.getElementById('recommendation').innerText.trim();
 
-    window.location.href = `step7.html?draftId=${draftId}`;
+  const updates = {
+    supportingPoints: selected,
+    audience: updatedAudience,
+    topic: updatedTopic,
+    recommendation: updatedRecommendation
   };
+
+  localStorage.setItem(draftKey, JSON.stringify({ ...draft, ...updates }));
+  await saveDraftToFirestore(draftId, updates);
+
+  window.location.href = `step7.html?draftId=${draftId}`;
+};
+
 </script>
 
 
