@@ -80,11 +80,12 @@
           `;
 
           const reviewBtn = document.createElement('button');
-          reviewBtn.textContent = 'Step 6 Review';
-          reviewBtn.onclick = () => {
-            localStorage.setItem('messageDraft', JSON.stringify(data));
-            window.location.href = `step6-review.html?draftId=${draftId}`;
-          };
+reviewBtn.textContent = 'Generate More Responses';
+reviewBtn.onclick = () => {
+  localStorage.setItem('messageDraft', JSON.stringify(data));
+  window.location.href = `step7.html?draftId=${draftId}`;
+};
+
 
           const archiveBtn = document.createElement('button');
           archiveBtn.textContent = 'Framed Message Archive';
