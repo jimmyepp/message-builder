@@ -429,3 +429,40 @@ button:hover {
   color: white;
 }
 
+
+.transform-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.transform-form select,
+.transform-form button {
+  font-size: 1rem;
+  padding: 0.5rem;
+  border: 1px solid var(--navy);
+  border-radius: 6px;
+}
+
+.result-box {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.result-box textarea {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1rem;
+  border: 1px solid var(--navy);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  background-color: #fff;
+  color: var(--navy);
+}
+
+.styled-list {
+  list-style-type: disc;
+  padding-left: 2rem;
+}
+
