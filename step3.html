@@ -1,70 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Step 3: What is your recommendation?</title>
-    <meta charset="UTF-8">
-  <title>Step 1</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <nav class="global-nav">
-  <a href="index.html">Start New Message</a>
-  <span class="pipe">|</span>
-  <a href="my-drafts.html">My Drafts</a>
-  <span class="pipe">|</span>
-  <a href="tools.html">Tools</a>
-  <span class="pipe">|</span>
-  <a href="profile.html">Settings</a>
-</nav>
- <div class="step-wrapper">
-  <div class="step-box">
+    <a href="index.html">Start New Message</a>
+    <span class="pipe">|</span>
+    <a href="my-drafts.html">My Drafts</a>
+    <span class="pipe">|</span>
+    <a href="tools.html">Tools</a>
+    <span class="pipe">|</span>
+    <a href="profile.html">Settings</a>
+  </nav>
 
-  <h1>Step 3 of 7</h1>
-  <p class="step-subhead">What is your recommendation?</p>
+  <div class="step-wrapper">
+    <div class="step-box">
+      <h1>Step 3 of 7</h1>
+      <p class="step-subhead">What is your recommendation?</p>
 
-<form id="step3Form">
-  <input type="text" id="recommendationInput" placeholder="Enter your recommendation" required />
-  <button class="start-button" type="submit">Next</button>
-</form>
-</div>
-</div>
- <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const draftId = urlParams.get('draftId');
+      <form id="step3Form">
+        <input
+          type="text"
+          id="recommendationInput"
+          placeholder="Enter your recommendation"
+          required
+        />
+        <button class="start-button" type="submit">Next</button>
+      </form>
+    </div>
+  </div>
 
-    if (!draftId) {
-      alert("Missing draft ID. Please start a new message.");
-      window.location.href = 'index.html';
-      return;
-    }
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const draftId = urlParams.get('draftId');
 
-    const form = document.getElementById('step3Form');
-    const titleInput = document.getElementById('titleInput');
-    const recommendationInput = document.getElementById('recommendationInput');
+      if (!draftId) {
+        alert("Missing draft ID. Please start a new message.");
+        window.location.href = 'index.html';
+        return;
+      }
 
-    const draft = JSON.parse(localStorage.getItem(`draft-${draftId}`)) || {};
+      const form = document.getElementById('step3Form');
+      const recommendationInput = document.getElementById('recommendationInput');
 
-    // Autofill title with topic if available and no title exists
-    if (draft.topic && !draft.title) {
-      titleInput.value = draft.topic;
-    }
+      const draft = JSON.parse(localStorage.getItem(`draft-${draftId}`)) || {};
 
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      draft.title = titleInput.value.trim();
-      draft.recommendation = recommendationInput.value.trim();
-      draft.id = draftId;
+      // Optional: pre-fill if already exists
+      if (draft.recommendation) {
+        recommendationInput.value = draft.recommendation;
+      }
 
-      localStorage.setItem(`draft-${draftId}`, JSON.stringify(draft));
-      localStorage.setItem('messageDraft', JSON.stringify(draft));
-      window.location.href = `step4.html?draftId=${draftId}`;
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        draft.recommendation = recommendationInput.value.trim();
+        draft.id = draftId;
+
+        localStorage.setItem(`draft-${draftId}`, JSON.stringify(draft));
+        localStorage.setItem('messageDraft', JSON.stringify(draft));
+
+        window.location.href = `step4.html?draftId=${draftId}`;
+      });
     });
-  });
-</script>
-
-
+  </script>
 </body>
 </html>
