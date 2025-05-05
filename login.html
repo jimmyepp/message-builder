@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Start a New Message</title>
-  <link rel="stylesheet" href="style.css">  
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login to Message Builder</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <nav class="global-nav">
@@ -17,56 +17,74 @@
     <a href="profile.html">Settings</a>
   </nav>
 
-  <div class="index-wrapper">
-    <h1>Build a Clear Message<br>Step by Step</h1>
-    <p>
-      Think before you speak. Ship. Create. 
-      <br>You don’t need noise—you need structure.
-      <br>This tool helps you frame your message with precision and impact.
-    </p>
-    <br />
-    <button class="start-button" onclick="startNewMessage()">Start New Message</button>
+  <div class="auth-wrapper">
+    <div class="auth-box">
+      <h1>Login or Create an Account</h1>
+      <form id="loginForm">
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="password" id="password" placeholder="Password (min 6 chars)" required />
+        <button class="start-button" type="submit">Login / Sign Up</button>
+      </form>
+      <p id="status"></p>
+    </div>
   </div>
 
+  <!-- Firebase + Auth -->
   <script type="module">
-    import { db } from './firebase.js';
-    import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js';
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js';
 
-    function generateNewDraftId() {
-      return Date.now().toString();
-    }
+    const firebaseConfig = {
+      apiKey: "AIzaSyDwdxBBKdZKWq8607RX9qYXXuSH0Y70-8M",
+      authDomain: "message-builder.firebaseapp.com",
+      projectId: "message-builder",
+      storageBucket: "message-builder.appspot.com",
+      messagingSenderId: "620007229764",
+      appId: "1:620007229764:web:06a24e72c2298ddf022f11",
+      measurementId: "G-V4J3HTB2L9"
+    };
 
-    async function startNewMessage() {
-      const userId = localStorage.getItem('userId');
-      if (!userId) {
-        window.location.href = 'login.html';
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const form = document.getElementById('loginForm');
+    const status = document.getElementById('status');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (!email || !password || password.length < 6) {
+        status.textContent = "Please enter a valid email and password (min 6 characters)";
         return;
       }
 
-      const newDraftId = generateNewDraftId();
-      const newDraft = {
-        id: newDraftId,
-        title: '',
-        createdAt: new Date().toISOString(),
-        status: 'incomplete',
-        messages: []
-      };
-
-      // Save to localStorage
-      localStorage.setItem('messageDraft', JSON.stringify(newDraft));
-      localStorage.setItem(`draft-${newDraftId}`, JSON.stringify(newDraft));
-
-      // Save to Firestore
-      await setDoc(doc(db, "users", userId, "drafts", newDraftId), {
-        ...newDraft,
-        createdAt: serverTimestamp()
-      });
-
-      // Redirect to step 1
-      window.location.href = `step1.html?draftId=${newDraftId}`;
-    }
-
-    window.startNewMessage = startNewMessage;
+      try {
+        const userCred = await createUserWithEmailAndPassword(auth, email, password);
+        localStorage.setItem('userId', userCred.user.uid);
+        localStorage.setItem('userEmail', email);
+        status.textContent = "Account created!";
+        window.location.href = 'index.html';
+      } catch (err) {
+        if (err.code === 'auth/email-already-in-use') {
+          try {
+            const userCred = await signInWithEmailAndPassword(auth, email, password);
+            localStorage.setItem('userId', userCred.user.uid);
+            localStorage.setItem('userEmail', email);
+            status.textContent = "Logged in!";
+            window.location.href = 'index.html';
+          } catch (signInErr) {
+            console.error("Login failed:", signInErr);
+            status.textContent = "Login failed: " + signInErr.message;
+          }
+        } else {
+          console.error("Signup failed:", err);
+          status.textContent = "Signup failed: " + err.message;
+        }
+      }
+    });
   </script>
 </body>
 </html>

@@ -28,17 +28,24 @@
   <script type="module">
   import { db } from './firebase.js';
   import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
+  import { getAuth } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js';
 
   function generateNewDraftId() {
     return Date.now().toString();
   }
 
   async function startNewMessage() {
-    const userId = localStorage.getItem('userId');
-    if (!userId) {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) {
+      localStorage.removeItem('userId'); // clean up stale value
       window.location.href = 'login.html';
       return;
     }
+
+    const userId = user.uid;
+    localStorage.setItem('userId', userId); // refresh it, just in case
 
     const newDraftId = generateNewDraftId();
     const newDraft = {
@@ -59,12 +66,12 @@
       createdAt: serverTimestamp()
     });
 
-    // Redirect to step1
     window.location.href = `step1.html?draftId=${newDraftId}`;
   }
 
   window.startNewMessage = startNewMessage;
 </script>
+
 
 
 
