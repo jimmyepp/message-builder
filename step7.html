@@ -181,33 +181,7 @@
 </script>
 
 <script>
-  const draftId = new URLSearchParams(window.location.search).get("draftId");
-const draftKey = `draft-${draftId}`;
-const draft = JSON.parse(localStorage.getItem(draftKey)) || {};
-
-document.getElementById("audience").textContent = draft.audience || '';
-document.getElementById("topic").textContent = draft.topic || '';
-document.getElementById("recommendation").textContent = draft.recommendation || '';
-
-const pointsContainer = document.getElementById("editablePointsContainer");
-const selectedPoints = draft.supportingPoints || [];
-
-selectedPoints.forEach((point, index) => {
-  const input = document.createElement("input");
-  input.type = "text";
-  input.value = point;
-  input.className = "editable-support-point";
-  input.dataset.index = index;
-  pointsContainer.appendChild(input);
-});
-
-const editedPoints = Array.from(document.querySelectorAll(".editable-support-point"))
-  .map(input => input.value.trim())
-  .filter(Boolean);
-
-// Include `editedPoints` in the OpenAI payload instead of `draft.supportingPoints`
-
-</script>
+  
 
 
 </body>
