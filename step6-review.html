@@ -29,7 +29,7 @@
     const draftKey = `draft-${draftId}`;
     const draft = JSON.parse(localStorage.getItem(draftKey)) || {};
 
-    const allPoints = [...(draft.uniquePoints || []), ...(draft.benefitPoints || [])];
+    const allPoints = [...(draft.uniquePoints || []), ...(draft.benefits || [])];
     const selectedPoints = draft.supportingPoints || [];
 
     document.getElementById('topic').textContent = draft.topic || '[Not set]';
