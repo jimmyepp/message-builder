@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Framed Message Archive</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="wrapper">
+    <h1>Framed Message Archive</h1>
+    <p>This page shows all your generated messages for this project.</p>
+
+    <ul id="messageList"></ul>
+  </div>
+
+  <script>
+    const draftId = new URLSearchParams(window.location.search).get("draftId");
+    const draftKey = `draft-${draftId}`;
+    const draft = JSON.parse(localStorage.getItem(draftKey)) || {};
+
+    const list = document.getElementById("messageList");
+    const messages = draft.messages || [];
+
+    if (messages.length === 0) {
+      list.innerHTML = "<li>No messages generated yet.</li>";
+    } else {
+      messages.forEach((msg, index) => {
+        const li = document.createElement("li");
+        li.style.marginBottom = "1.5rem";
+
+        const title = document.createElement("h3");
+        title.textContent = `${index + 1}. ${msg.format || "Unknown Format"} (${msg.frame || "No Frame"}${msg.influence ? " + " + msg.influence : ""})`;
+
+        const pre = document.createElement("pre");
+        pre.style.whiteSpace = "pre-wrap";
+        pre.textContent = msg.generatedMessage;
+
+        li.appendChild(title);
+        li.appendChild(pre);
+        list.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>
