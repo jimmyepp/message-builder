@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Step 6: Pick Supporting Points</title>
     <meta charset="UTF-8">
-  <title>Step 1</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -25,66 +24,42 @@
   </form>
 </div>
 </div>
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const draftId = new URLSearchParams(window.location.search).get("draftId");
-    const draftKey = `draft-${draftId}`;
-    const draft = JSON.parse(localStorage.getItem(draftKey)) || {};
-
-    const uniquePoints = draft.uniquePoints || [];
-    const benefitPoints = draft.benefits || []; // ← updated to match Step 5
-const combinedPoints = [...uniquePoints, ...benefitPoints];
-
-    // Debug output
-    console.log("Draft loaded in Step 6:", draft);
-
-    document.getElementById('audience').textContent = draft.audience || '[Not set]';
-    document.getElementById('topic').textContent = draft.topic || '[Not set]';
-    document.getElementById('recommendation').textContent = draft.recommendation || '[Not set]';
-
-    const list = document.getElementById('supportingPointsList');
-
-    combinedPoints.forEach((point, index) => {
-      const li = document.createElement('li');
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.value = point;
-      checkbox.id = `point-${index}`;
-
-      const label = document.createElement('label');
-      label.htmlFor = `point-${index}`;
-      label.textContent = point;
-
-      li.appendChild(checkbox);
-      li.appendChild(label);
-      list.appendChild(li);
-    });
-
-    function saveToDraft(updates) {
-      const updated = { ...draft, ...updates };
-      localStorage.setItem(draftKey, JSON.stringify(updated));
-    }
-
-    window.nextStep = function () {
-      const selected = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
-
-      if (selected.length !== 3) {
-        alert("Please select exactly 3 supporting points.");
-        return;
-      }
-
-      saveToDraft({ supportingPoints: selected });
-      window.location.href = `step7.html?draftId=${draftId}`;
-    }
-  });
-</script>
-
-
 <script type="module">
   import { db } from './firebase.js';
   import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
 
-  export async function saveDraftToFirestore(draftId, updates) {
+  const draftId = new URLSearchParams(window.location.search).get("draftId");
+  const draftKey = `draft-${draftId}`;
+  const draft = JSON.parse(localStorage.getItem(draftKey)) || {};
+
+  const uniquePoints = draft.uniquePoints || [];
+  const benefitPoints = draft.benefits || []; // Corrected from "benefitPoints"
+  const combinedPoints = [...uniquePoints, ...benefitPoints];
+
+  // Populate message summary
+  document.getElementById('audience').textContent = draft.audience || '[Not set]';
+  document.getElementById('topic').textContent = draft.topic || '[Not set]';
+  document.getElementById('recommendation').textContent = draft.recommendation || '[Not set]';
+
+  // Populate checkbox list
+  const list = document.getElementById('supportingPointsList');
+  combinedPoints.forEach((point, index) => {
+    const li = document.createElement('li');
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.value = point;
+    checkbox.id = `point-${index}`;
+
+    const label = document.createElement('label');
+    label.htmlFor = `point-${index}`;
+    label.textContent = point;
+
+    li.appendChild(checkbox);
+    li.appendChild(label);
+    list.appendChild(li);
+  });
+
+  async function saveDraftToFirestore(draftId, updates) {
     const userId = localStorage.getItem('userId');
     if (!userId || !draftId) return;
 
@@ -92,10 +67,8 @@ const combinedPoints = [...uniquePoints, ...benefitPoints];
     const existingDraft = JSON.parse(localStorage.getItem(draftKey)) || {};
     const updatedDraft = { ...existingDraft, ...updates };
 
-    // Save to localStorage
     localStorage.setItem(draftKey, JSON.stringify(updatedDraft));
 
-    // Save to Firestore
     await setDoc(doc(db, "users", userId, "drafts", draftId), {
       ...updatedDraft,
       updatedAt: serverTimestamp()
@@ -104,9 +77,22 @@ const combinedPoints = [...uniquePoints, ...benefitPoints];
     console.log("Draft updated in Firestore with supportingPoints");
   }
 
-  // Attach to window so regular script block can call it
-  window.saveDraftToFirestore = saveDraftToFirestore;
+  window.nextStep = async function () {
+    const selected = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+
+    if (selected.length !== 3) {
+      alert("Please select exactly 3 supporting points.");
+      return;
+    }
+
+    const updates = { supportingPoints: selected };
+    localStorage.setItem(draftKey, JSON.stringify({ ...draft, ...updates }));
+    await saveDraftToFirestore(draftId, updates);
+
+    window.location.href = `step7.html?draftId=${draftId}`;
+  };
 </script>
+
 
 
 

@@ -25,9 +25,14 @@
     <button onclick="nextStep()">Next</button>
   </div>
 </div>
-  <script>
-  // Get the draft ID from the URL
-  const draftId = new URLSearchParams(window.location.search).get("draftId");
+
+<script>
+  // Safe draftId fallback
+  let draftId = new URLSearchParams(window.location.search).get("draftId");
+  if (!draftId) {
+    const fallback = JSON.parse(localStorage.getItem("messageDraft"));
+    draftId = fallback?.id || "unknown";
+  }
   const draftKey = `draft-${draftId}`;
   const draft = JSON.parse(localStorage.getItem(draftKey)) || {};
 
@@ -112,8 +117,6 @@
   // Initial render
   renderBenefits();
 </script>
-
-
 
 </body>
 </html>
