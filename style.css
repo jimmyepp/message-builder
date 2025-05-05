@@ -341,3 +341,27 @@ button:hover {
   background-color: #f9f9f9;
 }
 
+
+.editable-field {
+  padding: 0.15rem 0.35rem;
+  border: 1px dashed transparent;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  cursor: text;
+  position: relative;
+}
+
+.editable-field:hover,
+.editable-field:focus {
+  border: 1px dashed var(--blue);
+  background-color: #f9f9f9;
+}
+
+/* Optional: ✏️ icon as a background hint */
+.editable-field::after {
+  content: "✏️";
+  font-size: 0.8rem;
+  margin-left: 0.3rem;
+  opacity: 0.4;
+}
+
