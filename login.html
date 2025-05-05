@@ -16,23 +16,17 @@
   <span class="pipe">|</span>
   <a href="profile.html">Settings</a>
 </nav>
-	<div class="centered-content">
-  <div class="wrapper">
+
+
+<div class="auth-wrapper">
+  <div class="auth-box">
     <h1>Login or Create an Account</h1>
-
-<form id="loginForm">
-  <input type="email" id="email" placeholder="Email" required />
-<input type="password" id="password" placeholder="Password (min 6 chars)" required autocomplete="current-password" />
-  <button type="submit">Login / Sign Up</button>
-</form>
-<p id="status"></p>
-
-
-    <p id="status" style="margin-top: 1em;"></p>
-
-
+    <input type="email" placeholder="Email" />
+    <input type="password" placeholder="Password (min 6 chars)" />
+    <button class="start-button" onclick="handleLogin()">Login / Sign Up</button>
   </div>
 </div>
+
   <!-- Firebase + Auth -->
   <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js';
