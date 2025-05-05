@@ -466,3 +466,17 @@ button:hover {
   padding-left: 2rem;
 }
 
+.editable-points {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.editable-support-point {
+  font-size: 1rem;
+  padding: 0.5rem;
+  border: 1px solid var(--navy);
+  border-radius: 6px;
+}
+
