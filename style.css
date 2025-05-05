@@ -100,3 +100,44 @@ button:hover {
   text-align: center;
   padding: 2rem;
 }
+
+/* Global Navigation Bar */
+.global-nav {
+  background-color: #04a6dc; /* Primary yellow */
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: #0d1b2a;
+}
+
+.global-nav a {
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.global-nav a:hover {
+  color: #fbcd5e; /* Bright blue hover */
+}
+
+.global-nav .pipe {
+  color: #fff;
+  opacity: 0.4;
+}
+
+.global-nav a,
+.global-nav .pipe {
+  margin-right: 0.25rem;
+}
+
+
+@media (max-width: 600px) {
+  .global-nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
