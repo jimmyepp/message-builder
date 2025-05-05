@@ -16,7 +16,7 @@
   <span class="pipe">|</span>
   <a href="profile.html">Settings</a>
 </nav>
-  <div class="centered-content">
+<div class="centered-content">
   <div class="wrapper">
     <h1>Step 7 of 7</h1>
 
@@ -26,12 +26,13 @@
     <p><strong>Recommendation:</strong> <span id="recommendation"></span></p>
 
     <h3>Supporting Points:</h3>
-    <ul id="supportingPointsList"></ul>
+    <ul id="supportingPointsList" class="styled-list"></ul>
 
-    <hr />
+    <hr style="margin: 2rem 0;" />
 
     <h2>Choose How to Transform Your Message:</h2>
-    <form id="transformForm">
+
+    <form id="transformForm" class="transform-form">
       <label for="formatSelect">Select a format:</label>
       <select id="formatSelect" required>
         <option value="">– Select –</option>
@@ -42,7 +43,7 @@
         <option value="talking points">Spoken Talking Points</option>
       </select>
 
-      <label for="frameSelect" style="margin-top: 1rem;">Optional: Reframe your message</label>
+      <label for="frameSelect">Optional: Reframe your message</label>
       <select id="frameSelect">
         <option value="">– None –</option>
         <option value="positive">Positive Frame</option>
@@ -54,27 +55,29 @@
         <option value="assembly">Assembly Frame</option>
         <option value="inverted">Inverted Frame</option>
       </select>
-<label for="influenceSelect" style="margin-top: 1rem;">Optional: Apply an Influence Concept</label>
-<select id="influenceSelect">
-    <option value="">-- None --</option>
-   <option value="commonGround">Common Ground</option>
-  <option value="consistency">Consistency</option>
-  <option value="contrast">Contrast</option>
-  <option value="emotional">Emotional</option>
-  <option value="novelty">Novelty</option>
-  <option value="scarcity">Scarcity</option>
-</select>
-      <button type="submit">Generate Message</button>
+
+      <label for="influenceSelect">Optional: Apply an Influence Concept</label>
+      <select id="influenceSelect">
+        <option value="">-- None --</option>
+        <option value="commonGround">Common Ground</option>
+        <option value="consistency">Consistency</option>
+        <option value="contrast">Contrast</option>
+        <option value="emotional">Emotional</option>
+        <option value="novelty">Novelty</option>
+        <option value="scarcity">Scarcity</option>
+      </select>
+
+      <button type="submit" class="start-button">Generate Message</button>
     </form>
 
-
-
-
-    <h3>Generated Result:</h3>
-    <textarea id="result" rows="12" style="width: 100%; font-size: 1rem;"></textarea>
-    <button onclick="copyResult()">Copy to Clipboard</button>
+    <div class="result-box">
+      <label for="result"><strong>Generated Result:</strong></label>
+      <textarea id="result" rows="10" readonly></textarea>
+      <button onclick="copyResult()" class="start-button">Copy to Clipboard</button>
+    </div>
   </div>
 </div>
+
   <script type="module">
   import { db } from './firebase.js';
   import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
