@@ -107,7 +107,9 @@ How to use:
 - Frame your recommendation as the smart, lower-risk option that still leads to a positive outcome
 
 Example:
-- We could wait and hope traffic rebounds, but that’s a gamble. There’s no guarantee it will recover without intervention. Instead, we can act now to update our SEO strategy — a safer, more reliable move that gives us better odds of regaining visibility and driving results.`,
+- We could wait and hope traffic rebounds, but that’s a gamble. There’s no guarantee it will recover without intervention. Instead, we can act now to update our SEO strategy — a safer, more reliable move that gives us better odds of regaining visibility and driving results.
+Wrong way to use it: 
+- When it comes to YouTube, the settlement approach is key to ensuring success in your video marketing strategy.`,
 
   assembly: `
 Use this frame to blend everything — attributes, benefits, and emotional tone — into a message that feels complete, balanced, and human. This frame brings together both the upsides and the tradeoffs in a single, honest narrative.
@@ -151,7 +153,8 @@ Use this principle to align your message with your audience’s past beliefs or 
 How to use:
 - Show how your recommendation reinforces their values or direction
 - do not specifically say the word consistent... but show hoe their views might be consistent with the recommendation
-Example: “You value speed-to-market matters — this solution supports that priority.”`,
+Example: “You value speed-to-market matters — this solution supports that priority.”
+Wrong way to use it: "Remember, consistency is key in maintaining a strong online presence."`,
 
   contrast: `
 Use this principle when you want your idea to stand out by comparison.
