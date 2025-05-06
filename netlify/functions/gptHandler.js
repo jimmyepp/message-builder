@@ -150,6 +150,7 @@ Example: “Just like you, we believe patients deserve answers fast — that’s
 Use this principle to align your message with your audience’s past beliefs or commitments.
 How to use:
 - Show how your recommendation reinforces their values or direction
+- do not specifically say the word consistent... but show hoe their views might be consistent with the recommendation
 Example: “You value speed-to-market matters — this solution supports that priority.”`,
 
   contrast: `

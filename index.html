@@ -73,6 +73,8 @@
       await setDoc(doc(db, "users", userId, "drafts", newDraftId), {
         ...newDraft,
         createdAt: serverTimestamp()
+          lastEditedAt: serverTimestamp()
+
       });
 
       window.location.href = `step1.html?draftId=${newDraftId}`;
