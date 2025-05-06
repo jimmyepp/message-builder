@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Step 7: Transform Your Message</title>
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -32,7 +32,6 @@
       <hr style="margin: 2rem 0;" />
 
       <h2>Choose How to Transform Your Message:</h2>
-
       <form id="transformForm" class="transform-form">
         <label for="formatSelect">Select a format:</label>
         <select id="formatSelect" required>
@@ -82,7 +81,7 @@
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js';
     import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js';
-    import { getFirestore, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
+    import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
 
     const firebaseConfig = {
       apiKey: "AIzaSyDwdxBBKdZKWq8607RX9qYXXuSH0Y70-8M",
@@ -99,23 +98,33 @@
     const db = getFirestore(app);
 
     const draftId = new URLSearchParams(window.location.search).get("draftId");
-    const draftKey = `draft-${draftId}`;
+
+    let currentDraft = null;
 
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        window.location.href = 'login.html';
+        window.location.href = "login.html";
         return;
       }
 
-      const draft = JSON.parse(localStorage.getItem(draftKey)) || {};
+      const draftRef = doc(db, "users", user.uid, "drafts", draftId);
+      const draftSnap = await getDoc(draftRef);
 
-      document.getElementById('audience').textContent = draft.audience || '';
-      document.getElementById('topic').textContent = draft.topic || '';
-      document.getElementById('recommendation').textContent = draft.recommendation || '';
+      if (!draftSnap.exists()) {
+        alert("Draft not found.");
+        return;
+      }
+
+      const draft = draftSnap.data();
+      currentDraft = draft;
+
+      // Populate summary
+      document.getElementById("audience").textContent = draft.audience || "[No audience]";
+      document.getElementById("topic").textContent = draft.topic || "[No topic]";
+      document.getElementById("recommendation").textContent = draft.recommendation || "[No recommendation]";
 
       const container = document.getElementById("editablePointsContainer");
-      const points = draft.supportingPoints || [];
-      points.forEach((point, index) => {
+      (draft.supportingPoints || []).forEach((point, index) => {
         const input = document.createElement("input");
         input.type = "text";
         input.value = point;
@@ -123,66 +132,74 @@
         input.dataset.index = index;
         container.appendChild(input);
       });
+    });
 
-      document.getElementById('transformForm').addEventListener('submit', async function (e) {
-        e.preventDefault();
+    document.getElementById("transformForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
 
-        const type = document.getElementById("formatSelect").value;
-        const selectedFrame = document.getElementById("frameSelect").value;
-        const influence = document.getElementById("influenceSelect").value;
+      const type = document.getElementById("formatSelect").value;
+      const frame = document.getElementById("frameSelect").value;
+      const influence = document.getElementById("influenceSelect").value;
 
-        if (!type) {
-          alert("Please select a format.");
-          return;
-        }
+      if (!type) {
+        alert("Please select a format.");
+        return;
+      }
 
-        const editedPoints = Array.from(document.querySelectorAll(".editable-support-point"))
-          .map(input => input.value.trim())
-          .filter(Boolean);
+      const editedPoints = Array.from(document.querySelectorAll(".editable-support-point"))
+        .map(input => input.value.trim())
+        .filter(Boolean);
 
-        document.getElementById("result").value = "Generating... please wait...";
+      if (!currentDraft || !currentDraft.topic || !currentDraft.audience || !currentDraft.recommendation) {
+        alert("Incomplete draft data.");
+        return;
+      }
 
-        try {
-          const response = await fetch("/.netlify/functions/gptHandler", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              topic: draft.topic,
-              audience: draft.audience,
-              recommendation: draft.recommendation,
-              supportingPoints: editedPoints,
-              type,
-              frame: selectedFrame,
-              influence
-            })
-          });
+      document.getElementById("result").value = "Generating... please wait...";
 
-          const data = await response.json();
-          const result = data.result || "Something went wrong.";
-          document.getElementById("result").value = result;
+      try {
+        const response = await fetch("/.netlify/functions/gptHandler", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            topic: currentDraft.topic,
+            audience: currentDraft.audience,
+            recommendation: currentDraft.recommendation,
+            supportingPoints: editedPoints,
+            type,
+            frame,
+            influence
+          })
+        });
 
-          draft.supportingPoints = editedPoints;
-          draft.messages = draft.messages || [];
-          draft.messages.push({
-            format: type,
-            frame: selectedFrame,
-            influence,
-            generatedMessage: result,
-            timestamp: new Date().toISOString()
-          });
+        const data = await response.json();
+        const result = data.result || "Something went wrong.";
+        document.getElementById("result").value = result;
 
-          const userId = user.uid;
-          localStorage.setItem('userId', userId);
-          localStorage.setItem(draftKey, JSON.stringify(draft));
-          await setDoc(doc(db, "users", userId, "drafts", draftId), {
-            ...draft,
+        // Save updated message
+        if (!currentDraft.messages) currentDraft.messages = [];
+        currentDraft.messages.push({
+          format: type,
+          frame,
+          influence,
+          generatedMessage: result,
+          timestamp: new Date().toISOString()
+        });
+
+        const userId = localStorage.getItem("userId");
+        if (userId) {
+          const draftRef = doc(db, "users", userId, "drafts", draftId);
+          await setDoc(draftRef, {
+            ...currentDraft,
+            supportingPoints: editedPoints,
             updatedAt: serverTimestamp()
           });
-        } catch (err) {
-          console.error("GPT generation failed:", err);
-          document.getElementById("result").value = "Something went wrong.";
         }
-      });
+
+      } catch (err) {
+        console.error("GPT generation failed:", err);
+        document.getElementById("result").value = "Something went wrong.";
+      }
     });
 
     window.copyResult = function () {
