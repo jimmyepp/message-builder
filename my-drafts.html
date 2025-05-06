@@ -85,7 +85,7 @@ actionsDiv.style.gap = '0.5rem';
 actionsDiv.style.flexWrap = 'wrap';
 
 const reviewBtn = document.createElement('button');
-reviewBtn.textContent = '✍️ Responses';
+reviewBtn.textContent = '✍️ Create';
 reviewBtn.onclick = () => {
   localStorage.setItem('messageDraft', JSON.stringify(data));
   window.location.href = `step7.html?draftId=${draftId}`;
