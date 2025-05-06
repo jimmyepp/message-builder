@@ -198,7 +198,7 @@ button:hover {
 
   .logo {
     margin-bottom: 0.5rem;
-      height: 50px; /* Try 60px, 80px, etc., if you want bigger */
+      height: 70px; /* Try 60px, 80px, etc., if you want bigger */
   width: auto;  /* Maintains aspect ratio */
   }
 }
