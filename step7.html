@@ -5,6 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Step 7: Transform Your Message</title>
   <link rel="stylesheet" href="style.css" />
+  <script type="module">
+  import { getDoc, doc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+  import { db } from './firebase.js';
+
+  export async function loadDraftWithFallback(draftId) {
+    const draftKey = `draft-${draftId}`;
+    let draft = JSON.parse(localStorage.getItem(draftKey));
+
+    if (!draft) {
+      const userId = localStorage.getItem("userId");
+      if (!userId) return null;
+
+      const docRef = doc(db, "users", userId, "drafts", draftId);
+      const snapshot = await getDoc(docRef);
+      if (snapshot.exists()) {
+        draft = snapshot.data();
+        localStorage.setItem(draftKey, JSON.stringify(draft));
+      }
+    }
+
+    return draft;
+  }
+</script>
 </head>
 <body>
   <nav class="global-nav">
@@ -78,7 +101,7 @@
     </div>
   </div>
 
-  <script type="module">
+   <script type="module">
     import { db } from './firebase.js';
     import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
 
