@@ -25,11 +25,16 @@
 
   <form id="step2Form">
     <input type="text" id="audienceInput" placeholder="Enter your audience" required>
+
+<label for="problemInput" style="margin-top: 1rem;">What problem are you trying to solve?</label>
+<input type="text" id="problemInput" placeholder="Describe the problem" required>
+
+
     <button class="start-button" type="submit">Next</button>
   </form>
 </div>
 </div>
-  <script>
+ <script>
   document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const draftId = urlParams.get('draftId');
@@ -41,19 +46,27 @@
     }
 
     const form = document.getElementById('step2Form');
-    const input = document.getElementById('audienceInput');
+    const audienceInput = document.getElementById('audienceInput');
+    const problemInput = document.getElementById('problemInput');
+
+    // Optional: Prefill inputs if returning to this step
+    const draft = JSON.parse(localStorage.getItem(`draft-${draftId}`)) || {};
+    if (draft.audience) audienceInput.value = draft.audience;
+    if (draft.problem) problemInput.value = draft.problem;
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-      const draft = JSON.parse(localStorage.getItem(`draft-${draftId}`)) || {};
-      draft.audience = input.value.trim();
+      draft.audience = audienceInput.value.trim();
+      draft.problem = problemInput.value.trim();
       draft.id = draftId;
+
       localStorage.setItem(`draft-${draftId}`, JSON.stringify(draft));
       localStorage.setItem('messageDraft', JSON.stringify(draft));
       window.location.href = `step3.html?draftId=${draftId}`;
     });
   });
 </script>
+
 
 
 </body>

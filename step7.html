@@ -25,8 +25,11 @@
       <p><strong>Audience:</strong> <span id="audience"></span></p>
       <p><strong>Topic:</strong> <span id="topic"></span></p>
       <p><strong>Recommendation:</strong> <span id="recommendation"></span></p>
+      <p><strong>Problem:</strong> <span id="problem"></span></p>
+
 
       <h3>Supporting Points:</h3>
+      <p>You can edit these if you want.</p>
       <div id="editablePointsContainer" class="editable-points"></div>
 
       <hr style="margin: 2rem 0;" />
@@ -122,6 +125,8 @@
       document.getElementById("audience").textContent = draft.audience || "[No audience]";
       document.getElementById("topic").textContent = draft.topic || "[No topic]";
       document.getElementById("recommendation").textContent = draft.recommendation || "[No recommendation]";
+      document.getElementById('problem').textContent = draft.problem || '[No problem set]';
+
 
       const container = document.getElementById("editablePointsContainer");
       (draft.supportingPoints || []).forEach((point, index) => {
