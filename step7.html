@@ -8,181 +8,189 @@
 </head>
 <body>
   <nav class="global-nav">
-  <a href="index.html">Start New Message</a>
-  <span class="pipe">|</span>
-  <a href="my-drafts.html">My Drafts</a>
-  <span class="pipe">|</span>
-  <a href="tools.html">Tools</a>
-  <span class="pipe">|</span>
-  <a href="profile.html">Settings</a>
-</nav>
-<div class="centered-content">
-  <div class="wrapper">
-    <h1>Step 7 of 7</h1>
+    <a href="index.html">Start New Message</a>
+    <span class="pipe">|</span>
+    <a href="my-drafts.html">My Drafts</a>
+    <span class="pipe">|</span>
+    <a href="tools.html">Tools</a>
+    <span class="pipe">|</span>
+    <a href="profile.html">Settings</a>
+  </nav>
 
-    <h2>Your Message Summary</h2>
-    <p><strong>Audience:</strong> <span id="audience"></span></p>
-    <p><strong>Topic:</strong> <span id="topic"></span></p>
-    <p><strong>Recommendation:</strong> <span id="recommendation"></span></p>
+  <div class="centered-content">
+    <div class="wrapper">
+      <h1>Step 7 of 7</h1>
 
-    <h3>Supporting Points:</h3>
-    <ul id="supportingPointsList" class="styled-list"></ul>
+      <h2>Your Message Summary</h2>
+      <p><strong>Audience:</strong> <span id="audience"></span></p>
+      <p><strong>Topic:</strong> <span id="topic"></span></p>
+      <p><strong>Recommendation:</strong> <span id="recommendation"></span></p>
 
-<h3>Supporting Points:</h3>
-<div id="editablePointsContainer" class="editable-points"></div>
+      <h3>Supporting Points:</h3>
+      <div id="editablePointsContainer" class="editable-points"></div>
 
+      <hr style="margin: 2rem 0;" />
 
-    <hr style="margin: 2rem 0;" />
+      <h2>Choose How to Transform Your Message:</h2>
 
-    <h2>Choose How to Transform Your Message:</h2>
+      <form id="transformForm" class="transform-form">
+        <label for="formatSelect">Select a format:</label>
+        <select id="formatSelect" required>
+          <option value="">– Select –</option>
+          <option value="email">Email</option>
+          <option value="elevator pitch">Elevator Pitch</option>
+          <option value="slide copy">Slide Copy</option>
+          <option value="one-pager">One-Pager</option>
+          <option value="talking points">Spoken Talking Points</option>
+        </select>
 
-    <form id="transformForm" class="transform-form">
-      <label for="formatSelect">Select a format:</label>
-      <select id="formatSelect" required>
-        <option value="">– Select –</option>
-        <option value="email">Email</option>
-        <option value="elevator pitch">Elevator Pitch</option>
-        <option value="slide copy">Slide Copy</option>
-        <option value="one-pager">One-Pager</option>
-        <option value="talking points">Spoken Talking Points</option>
-      </select>
+        <label for="frameSelect">Optional: Reframe your message</label>
+        <select id="frameSelect">
+          <option value="">– None –</option>
+          <option value="positive">Positive Frame</option>
+          <option value="negative">Negative Frame</option>
+          <option value="balanced">Balanced Frame</option>
+          <option value="attribute">Attribute Frame</option>
+          <option value="benefit">Benefit Frame</option>
+          <option value="settlement">Settlement Frame</option>
+          <option value="assembly">Assembly Frame</option>
+          <option value="inverted">Inverted Frame</option>
+        </select>
 
-      <label for="frameSelect">Optional: Reframe your message</label>
-      <select id="frameSelect">
-        <option value="">– None –</option>
-        <option value="positive">Positive Frame</option>
-        <option value="negative">Negative Frame</option>
-        <option value="balanced">Balanced Frame</option>
-        <option value="attribute">Attribute Frame</option>
-        <option value="benefit">Benefit Frame</option>
-        <option value="settlement">Settlement Frame</option>
-        <option value="assembly">Assembly Frame</option>
-        <option value="inverted">Inverted Frame</option>
-      </select>
+        <label for="influenceSelect">Optional: Apply an Influence Concept</label>
+        <select id="influenceSelect">
+          <option value="">-- None --</option>
+          <option value="commonGround">Common Ground</option>
+          <option value="consistency">Consistency</option>
+          <option value="contrast">Contrast</option>
+          <option value="emotional">Emotional</option>
+          <option value="novelty">Novelty</option>
+          <option value="scarcity">Scarcity</option>
+        </select>
 
-      <label for="influenceSelect">Optional: Apply an Influence Concept</label>
-      <select id="influenceSelect">
-        <option value="">-- None --</option>
-        <option value="commonGround">Common Ground</option>
-        <option value="consistency">Consistency</option>
-        <option value="contrast">Contrast</option>
-        <option value="emotional">Emotional</option>
-        <option value="novelty">Novelty</option>
-        <option value="scarcity">Scarcity</option>
-      </select>
+        <button type="submit" class="start-button">Generate Message</button>
+      </form>
 
-      <button type="submit" class="start-button">Generate Message</button>
-    </form>
-
-    <div class="result-box">
-      <label for="result"><strong>Generated Result:</strong></label>
-      <textarea id="result" rows="10" readonly></textarea>
-      <button onclick="copyResult()" class="start-button">Copy to Clipboard</button>
+      <div class="result-box">
+        <label for="result"><strong>Generated Result:</strong></label>
+        <textarea id="result" rows="10" readonly></textarea>
+        <button onclick="copyResult()" class="start-button">Copy to Clipboard</button>
+      </div>
     </div>
   </div>
-</div>
 
   <script type="module">
-  import { db } from './firebase.js';
-  import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js';
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js';
+    import { getFirestore, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
 
-  const draftId = new URLSearchParams(window.location.search).get("draftId");
-  const draftKey = `draft-${draftId}`;
-  const draft = JSON.parse(localStorage.getItem(draftKey)) || {};
+    const firebaseConfig = {
+      apiKey: "AIzaSyDwdxBBKdZKWq8607RX9qYXXuSH0Y70-8M",
+      authDomain: "message-builder.firebaseapp.com",
+      projectId: "message-builder",
+      storageBucket: "message-builder.appspot.com",
+      messagingSenderId: "620007229764",
+      appId: "1:620007229764:web:06a24e72c2298ddf022f11",
+      measurementId: "G-V4J3HTB2L9"
+    };
 
-  document.getElementById('audience').textContent = draft.audience || '[No audience set]';
-  document.getElementById('topic').textContent = draft.topic || '[No topic set]';
-  document.getElementById('recommendation').textContent = draft.recommendation || '[No recommendation set]';
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-  const ul = document.getElementById('supportingPointsList');
-  const supportingPoints = draft.supportingPoints || [];
-  supportingPoints.forEach(point => {
-    const li = document.createElement('li');
-    li.textContent = point;
-    ul.appendChild(li);
-  });
+    const draftId = new URLSearchParams(window.location.search).get("draftId");
+    const draftKey = `draft-${draftId}`;
 
-  async function autoSaveDraft() {
-    const userId = localStorage.getItem('userId');
-    if (!userId) return;
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
 
-    draft.id = draftId;
-    draft.lastEditedAt = new Date().toISOString();
+      const draft = JSON.parse(localStorage.getItem(draftKey)) || {};
 
-    try {
-      await setDoc(doc(db, "users", userId, "drafts", draftId), {
-        ...draft,
-        createdAt: draft.createdAt || serverTimestamp(),
-        lastEditedAt: serverTimestamp()
-      });
-      localStorage.setItem(draftKey, JSON.stringify(draft));
-    } catch (err) {
-      console.error("Auto-save failed:", err);
-    }
-  }
+      document.getElementById('audience').textContent = draft.audience || '';
+      document.getElementById('topic').textContent = draft.topic || '';
+      document.getElementById('recommendation').textContent = draft.recommendation || '';
 
-  document.getElementById('transformForm').addEventListener('submit', async function (e) {
-    e.preventDefault();
-
-    const type = document.getElementById("formatSelect").value;
-    const selectedFrame = document.getElementById("frameSelect").value;
-    const influence = document.getElementById("influenceSelect").value;
-
-    if (!type) {
-      alert("Please select a format.");
-      return;
-    }
-
-    document.getElementById("result").value = "Generating... please wait...";
-
-    try {
-      const response = await fetch("/.netlify/functions/gptHandler", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          topic: draft.topic,
-          audience: draft.audience,
-          recommendation: draft.recommendation,
-          supportingPoints: draft.supportingPoints || [],
-          type,
-          frame: selectedFrame,
-          influence
-        })
+      const container = document.getElementById("editablePointsContainer");
+      const points = draft.supportingPoints || [];
+      points.forEach((point, index) => {
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = point;
+        input.className = "editable-support-point";
+        input.dataset.index = index;
+        container.appendChild(input);
       });
 
-      const data = await response.json();
-      const result = data.result || "Something went wrong.";
-      document.getElementById("result").value = result;
+      document.getElementById('transformForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
 
-      // Save the message to this draft
-      if (!draft.messages) draft.messages = [];
+        const type = document.getElementById("formatSelect").value;
+        const selectedFrame = document.getElementById("frameSelect").value;
+        const influence = document.getElementById("influenceSelect").value;
 
-      draft.messages.push({
-        format: type,
-        frame: selectedFrame,
-        influence,
-        generatedMessage: result,
-        timestamp: new Date().toISOString()
+        if (!type) {
+          alert("Please select a format.");
+          return;
+        }
+
+        const editedPoints = Array.from(document.querySelectorAll(".editable-support-point"))
+          .map(input => input.value.trim())
+          .filter(Boolean);
+
+        document.getElementById("result").value = "Generating... please wait...";
+
+        try {
+          const response = await fetch("/.netlify/functions/gptHandler", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              topic: draft.topic,
+              audience: draft.audience,
+              recommendation: draft.recommendation,
+              supportingPoints: editedPoints,
+              type,
+              frame: selectedFrame,
+              influence
+            })
+          });
+
+          const data = await response.json();
+          const result = data.result || "Something went wrong.";
+          document.getElementById("result").value = result;
+
+          draft.supportingPoints = editedPoints;
+          draft.messages = draft.messages || [];
+          draft.messages.push({
+            format: type,
+            frame: selectedFrame,
+            influence,
+            generatedMessage: result,
+            timestamp: new Date().toISOString()
+          });
+
+          const userId = user.uid;
+          localStorage.setItem('userId', userId);
+          localStorage.setItem(draftKey, JSON.stringify(draft));
+          await setDoc(doc(db, "users", userId, "drafts", draftId), {
+            ...draft,
+            updatedAt: serverTimestamp()
+          });
+        } catch (err) {
+          console.error("GPT generation failed:", err);
+          document.getElementById("result").value = "Something went wrong.";
+        }
       });
+    });
 
-      await autoSaveDraft();
-
-    } catch (err) {
-      console.error("GPT generation failed:", err);
-      document.getElementById("result").value = "Something went wrong.";
-    }
-  });
-
-  function copyResult() {
-    const text = document.getElementById("result").value;
-    navigator.clipboard.writeText(text)
-      .then(() => alert("Copied to clipboard!"))
-      .catch(err => alert("Failed to copy: " + err));
-  }
-
-  window.copyResult = copyResult;
-</script>
-
-
+    window.copyResult = function () {
+      const text = document.getElementById("result").value;
+      navigator.clipboard.writeText(text)
+        .then(() => alert("Copied to clipboard!"))
+        .catch(err => alert("Failed to copy: " + err));
+    };
+  </script>
 </body>
 </html>
