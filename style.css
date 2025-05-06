@@ -1,7 +1,7 @@
 :root {
   --yellow: #fbcd5e;
-  --blue: #04a6dc;
-  --red: #e5443c;
+  --blue: #041933; #041933
+  --red: #e5443c; #04a6dc
   --purple: #9655f1;
   --navy: #1b263b;
 }
@@ -77,7 +77,7 @@ select {
 }
 
 .start-button {
-  background-color: var(--blue);
+  background-color: #041933;
   color: white;
   font-size: 1rem;
   font-weight: bold;
@@ -100,7 +100,7 @@ body.index-page {
 
 /* BUTTONS */
 button {
-  background-color: var(--blue);
+  background-color: #041933;
   color: white;
   border: none;
   padding: 0.6rem 1.2rem;
@@ -154,7 +154,7 @@ button:hover {
 
 /* Global Navigation Bar */
 .global-nav {
-  background-color: #04a6dc; /* Primary yellow */
+  background-color: #041933; /* Primary yellow */
   padding: 0.75rem 1.5rem;
   display: flex;
   gap: 0.75rem;
@@ -286,7 +286,7 @@ button:hover {
 
 .step-box .start-button {
   width: 100%;
-  background-color: var(--blue);
+  background-color: #041933;
   color: white;
   font-weight: bold;
   padding: 0.75rem 1rem;
@@ -339,7 +339,7 @@ button:hover {
 
 [contenteditable="true"]:hover,
 [contenteditable="true"]:focus {
-  border: 1px dashed var(--blue);
+  border: 1px dashed #041933);
   outline: none;
   background-color: #f9f9f9;
 }
@@ -356,7 +356,7 @@ button:hover {
 
 .editable-field:hover,
 .editable-field:focus {
-  border: 1px dashed var(--blue);
+  border: 1px dashed #041933);
   background-color: #f9f9f9;
 }
 
@@ -395,7 +395,7 @@ button:hover {
 }
 
 .message-table th {
-  background-color: var(--blue);
+  background-color: #041933;
   color: white;
 }
 
