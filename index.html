@@ -72,7 +72,7 @@
 
       await setDoc(doc(db, "users", userId, "drafts", newDraftId), {
         ...newDraft,
-        createdAt: serverTimestamp()
+        createdAt: serverTimestamp(),
           lastEditedAt: serverTimestamp()
 
       });
