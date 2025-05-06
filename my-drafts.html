@@ -51,7 +51,7 @@
 
     async function loadDrafts() {
       try {
-        const q = query(collection(db, "users", userId, "drafts"), orderBy("lastEditedAt", "desc"));
+        const q = query(collection(db, "users", userId, "drafts"), orderBy("createdAt", "desc"));
         const querySnapshot = await getDocs(q);
 
         if (querySnapshot.empty) {
@@ -74,9 +74,12 @@
           summaryDiv.innerHTML = `
             <strong>${data.title || data.topic || 'Untitled Draft'}</strong><br>
             <small>${data.recommendation || 'No recommendation provided.'}</small><br>
-            <span style="font-size: 0.85rem; color: #666;">Last edited: ${data.lastEditedAt?.seconds
-              ? new Date(data.lastEditedAt.seconds * 1000).toLocaleString()
-              : 'Unknown'}</span>
+            <span style="font-size: 0.85rem; color: #666;">
+  Created: ${data.createdAt?.seconds
+    ? new Date(data.createdAt.seconds * 1000).toLocaleString()
+    : 'Unknown'}
+</span>
+
           `;
 
           const reviewBtn = document.createElement('button');
