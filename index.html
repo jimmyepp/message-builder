@@ -1,79 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Start a New Message</title>
-  <link rel="stylesheet" href="style.css">  
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<nav class="global-nav">
-  <a href="index.html">Start New Message</a>
-  <span class="pipe">|</span>
-  <a href="my-drafts.html">My Drafts</a>
-  <span class="pipe">|</span>
-  <a href="tools.html">Tools</a>
-  <span class="pipe">|</span>
-  <a href="profile.html">Settings</a>
-</nav>
+  <nav class="global-nav">
+    <a href="index.html">Start New Message</a>
+    <span class="pipe">|</span>
+    <a href="my-drafts.html">My Drafts</a>
+    <span class="pipe">|</span>
+    <a href="tools.html">Tools</a>
+    <span class="pipe">|</span>
+    <a href="profile.html">Settings</a>
+  </nav>
 
-    <div class="index-wrapper">
+  <div class="index-wrapper">
     <h1>Build a Clear Message<br>Step by Step</h1>
-    <p>Think before you speak. Ship. Create. 
-<br>You don’t need noise—you need structure.
-<br>This tool helps you frame your message with precision and impact.</p>
-<br>
+    <p>Think before you speak. Ship. Create.
+      <br>You don’t need noise—you need structure.
+      <br>This tool helps you frame your message with precision and impact.</p>
+    <br>
     <button class="start-button" onclick="startNewMessage()">Start New Message</button>
-</div>
+  </div>
+
   <script type="module">
-  import { db } from './firebase.js';
-  import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
-  import { getAuth } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js';
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js';
+    import { getAuth } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js';
+    import { getFirestore, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
 
-  function generateNewDraftId() {
-    return Date.now().toString();
-  }
-
-  async function startNewMessage() {
-    const auth = getAuth();
-    const user = auth.currentUser;
-
-    if (!user) {
-      localStorage.removeItem('userId'); // clean up stale value
-      window.location.href = 'login.html';
-      return;
-    }
-
-    const userId = user.uid;
-    localStorage.setItem('userId', userId); // refresh it, just in case
-
-    const newDraftId = generateNewDraftId();
-    const newDraft = {
-      id: newDraftId,
-      title: '',
-      createdAt: new Date().toISOString(),
-      status: 'incomplete',
-      messages: []
+    const firebaseConfig = {
+      apiKey: "AIzaSyDwdxBBKdZKWq8607RX9qYXXuSH0Y70-8M",
+      authDomain: "message-builder.firebaseapp.com",
+      projectId: "message-builder",
+      storageBucket: "message-builder.appspot.com",
+      messagingSenderId: "620007229764",
+      appId: "1:620007229764:web:06a24e72c2298ddf022f11",
+      measurementId: "G-V4J3HTB2L9"
     };
 
-    // Save to localStorage
-    localStorage.setItem('messageDraft', JSON.stringify(newDraft));
-    localStorage.setItem(`draft-${newDraftId}`, JSON.stringify(newDraft));
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    // Save to Firestore
-    await setDoc(doc(db, "users", userId, "drafts", newDraftId), {
-      ...newDraft,
-      createdAt: serverTimestamp()
-    });
+    async function startNewMessage() {
+      const user = auth.currentUser;
 
-    window.location.href = `step1.html?draftId=${newDraftId}`;
-  }
+      if (!user) {
+        localStorage.removeItem('userId');
+        window.location.href = 'login.html';
+        return;
+      }
 
-  window.startNewMessage = startNewMessage;
-</script>
+      const userId = user.uid;
+      localStorage.setItem('userId', userId);
+      localStorage.setItem('userEmail', user.email || '');
 
+      const newDraftId = Date.now().toString();
+      const newDraft = {
+        id: newDraftId,
+        title: '',
+        createdAt: new Date().toISOString(),
+        status: 'incomplete',
+        messages: []
+      };
 
+      localStorage.setItem('messageDraft', JSON.stringify(newDraft));
+      localStorage.setItem(`draft-${newDraftId}`, JSON.stringify(newDraft));
 
+      await setDoc(doc(db, "users", userId, "drafts", newDraftId), {
+        ...newDraft,
+        createdAt: serverTimestamp()
+      });
 
+      window.location.href = `step1.html?draftId=${newDraftId}`;
+    }
+
+    window.startNewMessage = startNewMessage;
+  </script>
 </body>
 </html>
