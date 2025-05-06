@@ -125,12 +125,14 @@
 
       const container = document.getElementById("editablePointsContainer");
       (draft.supportingPoints || []).forEach((point, index) => {
-        const input = document.createElement("input");
-        input.type = "text";
-        input.value = point;
-        input.className = "editable-support-point";
-        input.dataset.index = index;
-        container.appendChild(input);
+          const textarea = document.createElement("textarea");
+  textarea.rows = 3;
+  textarea.value = point;
+  textarea.className = "editable-support-point";
+  textarea.dataset.index = index;
+  textarea.style.width = "100%";
+  textarea.style.marginBottom = "1rem";
+  container.appendChild(textarea);
       });
     });
 
