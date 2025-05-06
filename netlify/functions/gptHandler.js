@@ -6,7 +6,18 @@ const openai = new OpenAI({
 
 const messagingFrames = {
   systemPrompt: `
-You are a message framing expert. Your job is to apply the selected messaging frames and follow its instructions to create the most effective message for the user.`,
+You are a message framing expert. Your job is to apply the selected messaging frames, influence pricniples, topic, recommendation and make a message. It is really important to follow the framing and influence instructions when applied to create one cohesive message for the user. 
+Guidelines on building messages:
+- Even though you are building messages for users, these messages are to be written for the user's audience. 
+- Avoid Self-Promotion: Let the audience’s success or failure speak for itself.
+- Show, Don’t Tell
+- Audience-centered tone: Focuses on your journey—not on the user's offerings.
+﻿﻿- No bragging or directives: Removes phrases like "Look no further" and "Don't wait any longer," which feel promotional.
+﻿﻿- No hero language: Replaces "We are the reason you can get help..." with a tone of partnership and presence.
+- Asddress the users audience as you.
+- You must take in all inputs and make one message.
+
+`,
   positive: `
 Use this frame to show the opportunity, transformation, and gain that comes from following the user's recommendation.
 
@@ -131,24 +142,22 @@ const influenceGuidance = {
 Use this principle to build trust by showing how your recommendation aligns with shared experiences, beliefs, or values.
 How to use:
 - Reference mutual goals, cultural norms, or points of agreement
-- Use inclusive language: “we all want…”, “like you, I believe…”
+- Use inclusive language
 - Show that you understand where your audience is coming from
 Example: “Just like you, we believe patients deserve answers fast — that’s why this change puts test results directly in their hands.”`,
 
   consistency: `
 Use this principle to align your message with your audience’s past beliefs or commitments.
 How to use:
-- Reference something they’ve said, prioritized, or acted on before
 - Show how your recommendation reinforces their values or direction
-Example: “You’ve said speed-to-market matters — this solution supports that priority.”`,
+Example: “You value speed-to-market matters — this solution supports that priority.”`,
 
   contrast: `
 Use this principle when you want your idea to stand out by comparison.
 How to use:
-- Show the difference between taking action vs. doing nothing
-- Compare your recommendation to an outdated or less effective option
+- Compare your recommendation to an outdated or less effective option, exaggerate if you need to. 
 - Highlight changes in results, speed, or simplicity
-Example: “Unlike our current process, this approach cuts response time in half.”`,
+Example: "Our current process take days to implement, this approach cuts response time in half.”`,
 
   emotional: `
 - Identify the core emotion you want to tap into — hope, fear, pride, frustration, relief, compassion
