@@ -8,119 +8,134 @@
 </head>
 <body>
   <nav class="global-nav">
-  <a href="index.html">Start New Message</a>
-  <span class="pipe">|</span>
-  <a href="my-drafts.html">My Drafts</a>
-  <span class="pipe">|</span>
-  <a href="tools.html">Tools</a>
-  <span class="pipe">|</span>
-  <a href="profile.html">Settings</a>
-</nav>
+    <a href="index.html">Start New Message</a>
+    <span class="pipe">|</span>
+    <a href="my-drafts.html">My Drafts</a>
+    <span class="pipe">|</span>
+    <a href="tools.html">Tools</a>
+    <span class="pipe">|</span>
+    <a href="profile.html">Settings</a>
+  </nav>
 
-<input type="text" id="searchInput" placeholder="Search by type, frame, or influence..." />
+  <input type="text" id="searchInput" placeholder="Search by type, frame, or influence..." />
 
-<table class="message-table">
-  <thead>
-    <tr>
-      <th>Type</th>
-      <th>Frame</th>
-      <th>Influence</th>
-      <th>Generated Response</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody id="messageTableBody"></tbody>
-</table>
+  <table class="message-table">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Frame</th>
+        <th>Influence</th>
+        <th>Generated Response</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="messageTableBody"></tbody>
+  </table>
 
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js';
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js';
+    import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
 
-  <script>
-  const draftId = new URLSearchParams(window.location.search).get("draftId");
-  const draftKey = `draft-${draftId}`;
-  const draft = JSON.parse(localStorage.getItem(draftKey)) || {};
-  const messages = draft.messages || [];
+    const firebaseConfig = {
+      apiKey: "AIzaSyDwdxBBKdZKWq8607RX9qYXXuSH0Y70-8M",
+      authDomain: "message-builder.firebaseapp.com",
+      projectId: "message-builder",
+      storageBucket: "message-builder.appspot.com",
+      messagingSenderId: "620007229764",
+      appId: "1:620007229764:web:06a24e72c2298ddf022f11",
+      measurementId: "G-V4J3HTB2L9"
+    };
 
-  const tableBody = document.getElementById("messageTableBody");
-  const searchInput = document.getElementById("searchInput");
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-  function renderTable(filteredMessages = messages) {
-    tableBody.innerHTML = "";
+    const draftId = new URLSearchParams(window.location.search).get("draftId");
+    const tableBody = document.getElementById("messageTableBody");
+    const searchInput = document.getElementById("searchInput");
+    let messages = [];
 
-    if (!filteredMessages.length) {
-      const row = document.createElement("tr");
-      const cell = document.createElement("td");
-      cell.colSpan = 5;
-      cell.textContent = "No messages found.";
-      row.appendChild(cell);
-      tableBody.appendChild(row);
-      return;
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      const draftRef = doc(db, "users", user.uid, "drafts", draftId);
+      const draftSnap = await getDoc(draftRef);
+
+      if (!draftSnap.exists()) {
+        tableBody.innerHTML = "<tr><td colspan='5'>No messages found.</td></tr>";
+        return;
+      }
+
+      const draft = draftSnap.data();
+      messages = draft.messages || [];
+      renderTable(messages);
+    });
+
+    function renderTable(filteredMessages) {
+      tableBody.innerHTML = "";
+
+      if (!filteredMessages.length) {
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+        cell.colSpan = 5;
+        cell.textContent = "No messages found.";
+        row.appendChild(cell);
+        tableBody.appendChild(row);
+        return;
+      }
+
+      filteredMessages.forEach((msg) => {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+          <td>${msg.format || "Unknown"}</td>
+          <td>${msg.frame || "None"}</td>
+          <td>${msg.influence || "None"}</td>
+          <td>
+            <div class="preview-text">${(msg.generatedMessage || "").substring(0, 200)}...</div>
+            <pre class="full-text hidden">${msg.generatedMessage || ""}</pre>
+          </td>
+          <td>
+            <button class="toggle-btn">Show</button>
+            <button class="copy-btn">Copy</button>
+          </td>
+        `;
+
+        const toggleBtn = row.querySelector(".toggle-btn");
+        const copyBtn = row.querySelector(".copy-btn");
+        const preview = row.querySelector(".preview-text");
+        const full = row.querySelector(".full-text");
+
+        toggleBtn.onclick = () => {
+          preview.classList.toggle("hidden");
+          full.classList.toggle("hidden");
+          toggleBtn.textContent = full.classList.contains("hidden") ? "Show" : "Hide";
+        };
+
+        copyBtn.onclick = () => {
+          navigator.clipboard.writeText(msg.generatedMessage || "");
+          copyBtn.textContent = "Copied!";
+          setTimeout(() => (copyBtn.textContent = "Copy"), 1200);
+        };
+
+        tableBody.appendChild(row);
+      });
     }
 
-    filteredMessages.forEach((msg, index) => {
-      const row = document.createElement("tr");
-
-      const typeCell = document.createElement("td");
-      typeCell.textContent = msg.format || "Unknown";
-
-      const frameCell = document.createElement("td");
-      frameCell.textContent = msg.frame || "None";
-
-      const influenceCell = document.createElement("td");
-      influenceCell.textContent = msg.influence || "None";
-
-      const messageCell = document.createElement("td");
-      const preview = document.createElement("div");
-      preview.className = "preview-text";
-      preview.textContent = (msg.generatedMessage || "").substring(0, 200) + "...";
-      const full = document.createElement("pre");
-      full.className = "full-text hidden";
-      full.textContent = msg.generatedMessage || "";
-      messageCell.appendChild(preview);
-      messageCell.appendChild(full);
-
-      const actionCell = document.createElement("td");
-      const toggleBtn = document.createElement("button");
-      toggleBtn.textContent = "Show";
-      toggleBtn.onclick = () => {
-        full.classList.toggle("hidden");
-        preview.classList.toggle("hidden");
-        toggleBtn.textContent = full.classList.contains("hidden") ? "Show" : "Hide";
-      };
-
-      const copyBtn = document.createElement("button");
-      copyBtn.textContent = "Copy";
-      copyBtn.onclick = () => {
-        navigator.clipboard.writeText(msg.generatedMessage || "");
-        copyBtn.textContent = "Copied!";
-        setTimeout(() => (copyBtn.textContent = "Copy"), 1200);
-      };
-
-      actionCell.appendChild(toggleBtn);
-      actionCell.appendChild(copyBtn);
-
-      row.appendChild(typeCell);
-      row.appendChild(frameCell);
-      row.appendChild(influenceCell);
-      row.appendChild(messageCell);
-      row.appendChild(actionCell);
-
-      tableBody.appendChild(row);
+    searchInput.addEventListener("input", () => {
+      const term = searchInput.value.toLowerCase();
+      const filtered = messages.filter(
+        (msg) =>
+          msg.format?.toLowerCase().includes(term) ||
+          msg.frame?.toLowerCase().includes(term) ||
+          msg.influence?.toLowerCase().includes(term)
+      );
+      renderTable(filtered);
     });
-  }
-
-  // Search filtering
-  searchInput.addEventListener("input", () => {
-    const term = searchInput.value.toLowerCase();
-    const filtered = messages.filter(
-      (msg) =>
-        msg.format?.toLowerCase().includes(term) ||
-        msg.frame?.toLowerCase().includes(term) ||
-        msg.influence?.toLowerCase().includes(term)
-    );
-    renderTable(filtered);
-  });
-
-  renderTable();
-</script>
-
+  </script>
 </body>
 </html>
