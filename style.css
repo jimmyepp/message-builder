@@ -1,7 +1,7 @@
 :root {
   --yellow: #fbcd5e;
-  --blue: #041933; #041933
-  --red: #e5443c; #04a6dc
+  --blue: #041933;
+  --red: #e5443c;
   --purple: #9655f1;
   --navy: #1b263b;
 }
@@ -196,6 +196,7 @@ button:hover {
     align-items: flex-start;
     gap: 0.75rem;
   }
+   }
 
 
 
