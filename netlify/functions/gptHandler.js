@@ -124,6 +124,29 @@ How to use:
 Example:
 - Our automated patient portal gives you faster access to test results and fewer phone calls with your provider. That means more clarity, more control — and yes, fewer excuses to ignore that follow-up appointment. While it makes healthcare easier, it might also mean your doctor can finally hold you accountable — in real time.`,
 
+
+metaphor: `
+Use this frame to make your idea more familiar, visual, or concrete by comparing it to something your audience already understands.
+
+This could be a:
+- **Metaphor** (“This system is a house of cards”)
+- **Analogy** (“It’s like trying to build a plane while flying it”)
+- **Simile** (“This process is like herding cats”)
+
+How to use:
+- Choose something your audience already relates to—daily work, tools, travel, sports, systems, nature
+- Compare your topic to that familiar thing to highlight how it works, feels, or helps
+- Use the comparison to emphasize clarity, urgency, value, or simplicity
+- Keep it short and sharp—one strong metaphor is enough
+- Don’t force cleverness. The goal is clarity
+
+Example:
+- “This system is our radar—it shows us where we’re headed and alerts us to unseen problems.”
+- “Rolling this out is like setting up scaffolding—it gives us structure now while we keep building.”
+
+Whether it’s a metaphor or an analogy doesn’t matter. What matters is that it helps your audience *get it.*`,
+
+
   inverted: `
 Use this frame when you want to build your case logically, starting with facts, data, or observations — and ending with your recommendation. This works well when your audience needs to see the reasoning before accepting the conclusion.
 
